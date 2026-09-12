@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Enablement Showcase · Chuting (Telie) Zhang</title>
+<style>
+/* ============================================================
+   STYLE LAYER — Orb dial / unified light background
+   ============================================================ */
+:root{
+  --bg:#f4f3f0; --ink:#1c1b19; --ink2:#6b6862; --rule:#dcd9d2;
+  --accent:#6a63a6; --accent-soft:#6a63a614;
+  --mist1:#aab2f0; --mist2:#f0c2cc; --mist3:#b6e0d8; --mist4:#f3dcb4;
+  --serif:"Segoe UI","Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+  --sans:"Segoe UI","Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);
+  font-size:clamp(14px,1vw,16px);line-height:1.75;overflow-x:hidden}
+::selection{background:var(--accent);color:#fff}
+
+.shell{display:grid;grid-template-columns:minmax(340px,29%) 1fr;min-height:100vh}
+@media(max-width:900px){.shell{grid-template-columns:1fr}}
+
+/* ---------- LEFT: orb dial ---------- */
+.dial{position:sticky;top:0;height:100vh;display:flex;align-items:center;
+  user-select:none;overflow:hidden}
+.dial .brand{position:absolute;top:40px;left:40px;right:32px;z-index:2}
+.dial .brand small{display:block;font-size:.66rem;letter-spacing:.32em;color:var(--ink2);text-transform:uppercase;margin-bottom:10px}
+.dial .brand b{display:block;font-family:var(--serif);font-weight:500;font-size:clamp(1.5rem,1.9vw,2rem);line-height:1.15;letter-spacing:-.01em}
+.dial .brand .role{margin-top:10px;font-size:.82rem;color:var(--ink2);letter-spacing:.04em}
+.dial .foot .contact{margin:12px 0 12px;font-size:.74rem;color:var(--ink2)}
+.dial .foot .contact a{color:var(--ink2);text-decoration:none;border-bottom:1px solid var(--rule)}
+.dial .foot .contact a:hover{color:var(--accent);border-color:var(--accent)}
+.dial .foot{position:absolute;left:40px;right:32px;bottom:18px;z-index:2}
+.dial .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.dial .tags span{font-size:.66rem;letter-spacing:.08em;color:var(--ink2);border:1px solid var(--rule);padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.35)}
+.dial .meta{font-size:.68rem;color:var(--ink2);letter-spacing:.04em;display:flex;gap:14px;flex-wrap:wrap}
+
+.stage{position:relative;width:100%;height:100%;--navy:50%}
+@media(max-height:820px) and (min-width:901px){.stage{--navy:46%}.dial .tags{display:none}}
+
+/* orb: mesh-gradient aurora — overlapping colour mists, no edge, grain on top */
+.orb{position:absolute;left:-230px;top:var(--navy);width:580px;height:580px;margin-top:-290px;
+  border-radius:50%;cursor:grab;transition:transform .5s var(--ease)}
+.orb:active{cursor:grabbing}
+.orb .blob{position:absolute;border-radius:50%;filter:blur(54px);mix-blend-mode:multiply;will-change:transform}
+.orb .b1{left:16%;top:18%;width:52%;height:52%;background:#aab2f0;opacity:.75;animation:drift1 14s ease-in-out infinite}
+.orb .b2{left:38%;top:12%;width:44%;height:44%;background:#f0c2cc;opacity:.7;animation:drift2 17s ease-in-out infinite}
+.orb .b3{left:30%;top:40%;width:46%;height:46%;background:#b6e0d8;opacity:.75;animation:drift3 15s ease-in-out infinite}
+.orb .b4{left:14%;top:44%;width:38%;height:38%;background:#f3dcb4;opacity:.6;animation:drift2 19s ease-in-out infinite reverse}
+.orb .b5{left:44%;top:34%;width:30%;height:30%;background:#cbb9ee;opacity:.6;animation:drift1 12s ease-in-out infinite reverse}
+.orb .grain{position:absolute;inset:0;border-radius:50%;pointer-events:none;opacity:.22;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  -webkit-mask:radial-gradient(circle,#000 30%,transparent 68%);mask:radial-gradient(circle,#000 30%,transparent 68%)}
+@keyframes drift1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(18px,-14px) scale(1.06)}}
+@keyframes drift2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-16px,18px) scale(1.05)}}
+@keyframes drift3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(12px,16px) scale(.95)}}
+.orb .mist,.orb .haze,.orb .glint{display:none}
+
+/* arc items: horizontal text on a gentle arc to the right of orb */
+.arc-item{position:absolute;left:0;top:var(--navy);white-space:nowrap;
+  font-size:.88rem;color:var(--ink2);cursor:pointer;line-height:1;
+  transition:transform .5s var(--ease),opacity .5s var(--ease),color .3s,font-size .3s;
+  will-change:transform}
+.arc-item b{font-weight:500;color:var(--accent);margin-right:10px;font-size:.78em;letter-spacing:.06em;opacity:.8}
+.arc-item:hover{color:var(--ink);opacity:1!important}
+.arc-item:hover b{opacity:1}
+.arc-item.active{color:var(--ink);font-size:1.05rem;font-weight:600}
+.dial .brand b{cursor:pointer;transition:color .2s}
+.dial .brand b:hover{color:var(--accent)}
+.dial .brand .more{display:inline-block;margin-top:8px;font-size:.72rem;letter-spacing:.12em;color:var(--accent);cursor:pointer;border-bottom:1px solid transparent}
+.dial .brand .more:hover{border-color:var(--accent)}
+.dial .meta a{color:var(--ink2);text-decoration:none;border-bottom:1px solid var(--rule)}
+.dial .meta a:hover{color:var(--accent);border-color:var(--accent)}
+.demo{display:inline-flex;align-items:center;gap:8px;margin-top:22px;padding:9px 16px;font-size:.78rem;letter-spacing:.08em;
+  border:1px solid var(--rule);border-radius:2px;color:var(--ink2);background:rgba(255,255,255,.5);cursor:not-allowed}
+.demo small{font-size:.66rem;opacity:.7}
+a.demo.live{color:var(--accent);border-color:var(--accent);cursor:pointer;text-decoration:none;transition:background .2s,color .2s}
+a.demo.live:hover{background:var(--accent);color:#fff}
+.cta{display:inline-flex;align-items:center;margin-top:26px;padding:11px 24px;border:1px solid var(--accent);color:var(--accent);background:none;font-family:inherit;font-size:.92em;letter-spacing:.08em;cursor:pointer;transition:background .2s,color .2s}
+.cta:hover{background:var(--accent);color:#fff}
+.dnote{margin-top:36px;padding-top:14px;border-top:1px solid var(--rule);font-size:.7rem;letter-spacing:.1em;color:var(--ink2);opacity:.75}
+.iconrow{display:flex;gap:12px;align-items:center}
+.iconrow a{position:relative;display:inline-flex;width:34px;height:34px;align-items:center;justify-content:center;border:1px solid var(--rule);border-radius:50%;color:var(--ink2);text-decoration:none;transition:color .2s,border-color .2s,transform .2s}
+.iconrow a:hover{color:var(--accent);border-color:var(--accent);transform:translateY(-2px)}
+.iconrow svg{width:16px;height:16px;display:block}
+.iconrow.sm{gap:9px;margin-top:8px}
+.iconrow.sm a{width:27px;height:27px}
+.iconrow.sm svg{width:13px;height:13px}
+.embed{margin-top:26px;border-top:1px solid var(--rule);padding-top:22px}
+.embed .elabel{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.embed .elabel span{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink2)}
+.embed .elabel a{font-size:.75rem;color:var(--accent);text-decoration:none;border-bottom:1px solid transparent}
+.embed .elabel a:hover{border-color:var(--accent)}
+.embed .frame{border:1px solid var(--rule);border-radius:4px;overflow:hidden;background:#fff}
+.embed iframe{display:block;width:100%;height:1180px;border:0}
+/* about panel */
+.about-bg{position:fixed;inset:0;background:rgba(28,27,25,.18);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .35s;z-index:20}
+.about{position:fixed;top:0;left:0;height:100vh;width:min(440px,92vw);background:var(--bg);padding:48px 44px;overflow-y:auto;z-index:21;
+  transform:translateX(-102%);transition:transform .45s var(--ease);box-shadow:20px 0 60px -30px rgba(0,0,0,.25)}
+body.about-open .about{transform:none}
+body.about-open .about-bg{opacity:1;pointer-events:auto}
+.ghline{margin:.55rem 0 0}.ghline a{display:inline-flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--ink2);text-decoration:none;border-bottom:1px solid var(--rule);padding-bottom:1px}.ghline a:hover{color:var(--accent);border-color:var(--accent)}.ghline svg{width:14px;height:14px;flex:none}
+.about .close{position:absolute;top:22px;right:22px;width:34px;height:34px;border:1px solid var(--rule);border-radius:50%;background:none;cursor:pointer;color:var(--ink2);font-size:1rem;line-height:1}
+.about .close:hover{color:var(--ink);border-color:var(--ink)}
+.about small{display:block;font-size:.66rem;letter-spacing:.32em;color:var(--ink2);text-transform:uppercase;margin-bottom:10px}
+.about h3{font-family:var(--serif);font-weight:600;font-size:1.7rem;line-height:1.15;margin:0}
+.mehead{display:flex;align-items:center;gap:14px;margin-bottom:24px}
+.avatar{width:56px;height:56px;border-radius:50%;object-fit:cover;object-position:center 30%;border:1px solid var(--rule);flex:none}
+.about .role{color:var(--ink2);font-size:.85rem;margin-bottom:28px}
+.about h4{font-size:.68rem;letter-spacing:.2em;color:var(--accent);text-transform:uppercase;font-weight:600;margin:26px 0 10px}
+.about p{font-size:.92rem;line-height:1.85;color:var(--ink)}
+.about ul{list-style:none}
+.about li{position:relative;padding-left:16px;margin-bottom:6px;font-size:.9rem}
+.about li::before{content:"\2014";position:absolute;left:0;color:var(--accent)}
+.about .links{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.84rem}
+.about .links a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--rule)}
+.about .links a:hover{color:var(--accent);border-color:var(--accent)}
+.about .ph{color:var(--ink2);font-size:.8rem;border:1px solid var(--rule);padding:10px 12px;border-radius:3px;margin-top:8px}
+.arc-item.active b{opacity:1}
+
+/* ---------- RIGHT: preview ---------- */
+.preview{padding:clamp(40px,6vw,88px) clamp(26px,4vw,56px)}
+@media(max-width:900px){.preview{border-top:1px solid var(--rule)}}
+.preview-head{margin-bottom:34px;display:flex;align-items:baseline;gap:18px;flex-wrap:wrap}
+.preview-no{font-family:var(--serif);font-weight:300;font-size:clamp(2.2rem,5vw,3.2rem);color:var(--accent);line-height:1;opacity:.45;letter-spacing:-.02em}
+.preview-title{font-family:var(--serif);font-size:clamp(1.5rem,3vw,2rem);font-weight:400;letter-spacing:.01em;color:var(--ink)}
+.preview-tag{font-size:.68rem;letter-spacing:.2em;color:var(--ink2);border:1px solid var(--rule);
+  padding:2px 10px;border-radius:2px;text-transform:uppercase}
+
+.star-section{border-top:1px solid var(--rule);padding:20px 0;
+  opacity:0;transform:translateY(12px);transition:opacity .5s var(--ease),transform .5s var(--ease)}
+.preview.entered .star-section{opacity:1;transform:none}
+.preview.entered .star-section:nth-child(2){transition-delay:.07s}
+.preview.entered .star-section:nth-child(3){transition-delay:.14s}
+.preview.entered .star-section:nth-child(4){transition-delay:.2s}
+.star-label{font-size:.68rem;letter-spacing:.2em;color:var(--accent);text-transform:uppercase;font-weight:600;margin-bottom:6px}
+.star-label span{color:var(--ink2);letter-spacing:0;font-weight:400;font-size:.78rem;margin-left:8px}
+.star-section ul{list-style:none}
+.star-section li{position:relative;padding-left:18px;margin-bottom:8px}
+.star-section li::before{content:"\2014";position:absolute;left:0;color:var(--ink2);opacity:.6}
+
+.pipe{display:flex;flex-wrap:wrap;margin:8px 0 14px}
+.pipe span{background:#fff;border:1px solid var(--rule);padding:6px 12px;font-size:.8rem;white-space:nowrap}
+.pipe i{align-self:center;font-style:normal;color:var(--ink2);padding:0 6px}
+.verdict{background:var(--accent-soft);border-left:3px solid var(--accent);padding:14px 18px;margin:8px 0;font-size:.92em}
+.verdict p{margin:7px 0 0}
+figure.ph{border:1px solid var(--rule);background:rgba(255,255,255,.5);padding:26px 16px;text-align:center;color:var(--ink2);font-size:.74rem;letter-spacing:.04em;margin:10px 0;border-radius:3px;opacity:.75}
+/* charts (inline SVG diagrams) */
+figure.chart{background:#fff;border:1px solid var(--rule);border-radius:3px;padding:18px 20px 14px;margin:14px 0 18px}
+/* section 05 */
+.nums{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:16px 0 14px;margin:6px 0 8px}
+.nums div{text-align:center;border-left:1px solid var(--rule);padding:0 6px;display:flex;flex-direction:column}
+.nums div:first-child{border-left:0}
+.nums b{display:block;font-family:"Times New Roman",Georgia,serif;font-size:1.45rem;font-weight:600;letter-spacing:.01em;white-space:nowrap}
+.nums span{display:block;font-size:.66rem;color:var(--ink2);margin-top:auto;padding-top:4px;line-height:1.4}
+.loop{background:#fdfdfc;border:1px solid var(--rule);border-radius:10px;padding:20px 22px 6px;margin:4px 0 8px}
+.loop svg{width:100%;max-width:760px;height:auto;display:block;margin:0 auto}
+.loop .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;padding:4px 6px 16px;max-width:760px;margin:0 auto}
+.loop .cols p{margin:0;font-size:.73rem;line-height:1.65;color:var(--ink2)}
+.loop .cols b{color:var(--ink)}
+.trans{display:flex;align-items:stretch;gap:0;margin:6px 0 4px}
+.starter{margin-top:14px;padding-top:12px;border-top:1px solid var(--rule);font-size:.88em}
+.starter>b{display:block;font-size:.78rem;margin-bottom:6px}
+.starter ol{margin:0;padding-left:1.2em;color:var(--ink2)}
+.starter li{margin:3px 0;line-height:1.55;padding-left:0}
+.starter li::before{content:none}
+.trans .side{flex:1;background:#fdfdfc;border:1px solid var(--rule);border-radius:10px;padding:14px 18px;display:flex;flex-direction:column;align-items:flex-start}
+.trans .side h4{margin:0 0 6px;font-size:.8rem}
+.trans .side h4 small{font-weight:400;color:var(--ink2);font-size:.68rem;margin-left:6px}
+.trans .side p{margin:0;font-size:.71rem;line-height:1.6;color:var(--ink2)}
+.trans .side .back{display:inline-block;margin-top:auto;padding-top:9px;font-size:.7rem;color:var(--accent);text-decoration:none;border-bottom:1px solid transparent;cursor:pointer}
+.trans .side .back:hover{border-color:var(--accent)}
+.trans .mid{display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0 16px;gap:4px}
+.trans .mid .arr{color:var(--accent);font-size:1.1rem;line-height:1}
+.trans .mid .lbl{font-size:.64rem;color:var(--accent);font-weight:700;letter-spacing:.12em;white-space:nowrap}
+@media(max-width:860px){.nums{grid-template-columns:repeat(3,1fr);row-gap:14px}.nums div:nth-child(4){border-left:0}}
+@media(max-width:700px){.loop .cols{grid-template-columns:1fr}.trans{flex-direction:column}.trans .mid{padding:10px 0}}
+figure.shotfig{padding:10px 10px 12px}
+/* 04 interactive ring figure */
+.rfg{display:grid;grid-template-columns:minmax(230px,300px) 1fr;gap:28px;align-items:center;border:1px solid var(--rule);background:rgba(255,255,255,.5);border-radius:3px;padding:18px 22px;margin:14px 0}
+.rfg svg{display:block;width:100%;height:auto;user-select:none}
+.rfg .ring{fill:none;stroke-width:1.3;transition:.3s}
+.rfg .rg1{stroke:#9d988d}.rfg .rg2{stroke:#aca7bd}.rfg .rg3{stroke:#cfccc3}
+.rfg .core{fill:var(--accent);transition:.3s}
+.rfg .coretxt{fill:#fff;font-size:14px;letter-spacing:.1em;text-anchor:middle;pointer-events:none}
+.rfg .bignum{font-family:"Times New Roman",Georgia,serif;font-size:26px;fill:#a29dbe;paint-order:stroke;stroke:#fff;stroke-width:6px;text-anchor:middle;transition:.3s}
+.rfg .rname{font-size:14px;font-weight:600;letter-spacing:.1em;fill:var(--ink2);text-anchor:middle;paint-order:stroke;stroke:#fff;stroke-width:5px;transition:.3s}
+.rfg .sdot{fill:#fff;stroke:#9a95b8;stroke-width:1.4;transition:.3s}
+.rfg .rhit{fill:none;stroke:transparent;pointer-events:stroke;cursor:pointer}
+.rfg .rhitc{fill:transparent;stroke:none;pointer-events:all;cursor:pointer}
+.rfg svg[data-a="0"] .ring,.rfg svg[data-a="0"] .sdot,.rfg svg[data-a="0"] .rname,.rfg svg[data-a="0"] .bignum{opacity:.3}
+.rfg svg:not([data-a="-1"]):not([data-a="0"]) .core{opacity:.35}
+.rfg svg[data-a="1"] .rg1,.rfg svg[data-a="2"] .rg2,.rfg svg[data-a="3"] .rg3{stroke:var(--accent);stroke-width:2.4}
+.rfg svg[data-a="1"] .nn1,.rfg svg[data-a="2"] .nn2,.rfg svg[data-a="3"] .nn3{fill:var(--accent)}
+.rfg svg[data-a="1"] .gg1,.rfg svg[data-a="2"] .gg2,.rfg svg[data-a="3"] .gg3{fill:var(--accent)}
+.rfg svg[data-a="1"] .rg2,.rfg svg[data-a="1"] .rg3,.rfg svg[data-a="1"] .nn2,.rfg svg[data-a="1"] .nn3,.rfg svg[data-a="1"] .gg2,.rfg svg[data-a="1"] .gg3,.rfg svg[data-a="1"] .sdot{opacity:.3}
+.rfg svg[data-a="2"] .rg1,.rfg svg[data-a="2"] .rg3,.rfg svg[data-a="2"] .nn1,.rfg svg[data-a="2"] .nn3,.rfg svg[data-a="2"] .gg1,.rfg svg[data-a="2"] .gg3{opacity:.3}
+.rfg svg[data-a="2"] .sdot{stroke:var(--accent)}
+.rfg svg[data-a="3"] .rg1,.rfg svg[data-a="3"] .rg2,.rfg svg[data-a="3"] .nn1,.rfg svg[data-a="3"] .nn2,.rfg svg[data-a="3"] .gg1,.rfg svg[data-a="3"] .gg2,.rfg svg[data-a="3"] .sdot{opacity:.3}
+.rcards{position:relative;min-height:200px}
+.rcard{position:absolute;inset:0;opacity:0;transform:translateY(10px);transition:opacity .38s,transform .38s;pointer-events:none}
+.rcard.on{opacity:1;transform:none}
+.rcard::before{content:"";display:block;width:0;height:2px;background:var(--accent);transition:width .5s .12s;margin-bottom:12px}
+.rcard.on::before{width:38px}
+.rcard small{display:block;font-size:.66rem;letter-spacing:.24em;color:var(--accent);margin-bottom:7px}
+.rcard h4{margin:0 0 8px;font-weight:500;font-size:1.1rem;letter-spacing:.02em}
+.rcard h4 i{font-family:Georgia,serif;font-style:normal;font-size:1.4rem;color:var(--accent);margin-right:2px}
+.rcard p{margin:0;color:var(--ink2);font-size:.82rem;line-height:1.75}
+.rcard .chips{margin-top:10px;display:flex;flex-wrap:wrap;gap:5px}
+.rcard .chips span{border:1px solid var(--rule);background:rgba(255,255,255,.6);padding:2px 9px;border-radius:999px;font-size:.68rem;color:var(--ink2)}
+@media(max-width:700px){.rfg{grid-template-columns:1fr}.rcards{min-height:0}.rcard{position:static;display:none;transform:none}.rcard.on{display:block}}
+figure.shotfig img{width:100%;display:block;border-radius:2px;border:1px solid var(--rule)}
+figure.shotfig figcaption{padding:8px 8px 0}
+figure.chart svg{width:100%;height:auto;display:block;font-family:var(--sans)}
+figure.chart text{fill:var(--ink);font-size:12px}
+figure.chart .mut{fill:var(--ink2)}
+figure.chart .sm{font-size:10.5px}
+figure.chart .acc{fill:var(--accent)}
+figure.chart .lbl{font-size:11px;letter-spacing:.08em;fill:var(--accent);font-weight:600}
+figure.chart .ring{fill:none;stroke-width:26}
+figure.chart figcaption{margin-top:10px;padding-top:8px;border-top:1px solid var(--rule);font-size:.72rem;letter-spacing:.06em;color:var(--ink2)}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-top:24px;border:1px solid var(--rule);background:var(--rule);max-width:46.2em}
+.metrics div{padding:13px 14px;background:#fff;text-align:center}
+.metrics b{font-family:"Times New Roman",Georgia,serif;font-weight:600;font-size:1.5rem;display:block;color:var(--accent)}
+.metrics small{color:var(--ink2);display:block;margin-top:4px;line-height:1.4}
+.dir{margin-top:26px;border-top:1px solid var(--rule)}
+.dir a{display:flex;gap:14px;align-items:baseline;padding:11px 2px;border-bottom:1px solid var(--rule);cursor:pointer;color:var(--ink);text-decoration:none;transition:color .15s}
+.dir a:hover{color:var(--accent)}
+.dir b{font-family:var(--serif);color:var(--accent);font-weight:600;flex:none}
+.dir span{color:var(--ink2);font-size:.88em}
+.flow{counter-reset:step;margin:10px 0}
+.flow li{list-style:none;padding-left:0;display:grid;grid-template-columns:40px 100px 1fr;gap:12px;align-items:baseline;padding:10px 0;border-top:1px dotted var(--rule)}
+.flow li::before{position:static;counter-increment:step;content:counter(step,decimal-leading-zero);font-family:var(--serif);color:var(--accent);font-size:1.1rem}
+.flow b{font-size:.82rem;letter-spacing:.06em;white-space:nowrap}
+.flow>li>span{color:var(--ink2);font-size:.9em}
+table{width:100%;border-collapse:collapse;font-size:.85em;margin-top:8px;background:#fff}
+th{font-weight:600;text-align:left;color:var(--ink2);font-size:.9em;border-bottom:2px solid var(--ink);padding:8px 12px;white-space:nowrap}
+td{border-bottom:1px solid var(--rule);padding:10px 12px;vertical-align:top}
+td:first-child{font-weight:600;white-space:nowrap}
+@media(max-width:1300px){.metrics{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){.flow li{grid-template-columns:30px 1fr}.flow>li>span{grid-column:2}}
+@media(prefers-reduced-motion:reduce){.orb .blob{animation:none}.arc-item,.star-section,.orb{transition:none}}
+@media(max-width:900px){
+  .dial{position:relative;height:auto;min-height:0;display:block;overflow:visible;padding:28px 20px 22px}
+  .dial .brand{position:static;margin-bottom:18px}
+  .dial .foot{position:static;margin-top:18px}
+  .dial .stage{display:none}
+  .dial .orb{display:none}
+  .dial .tags{display:none}
+  .dial .foot{display:none}
+  .dial{padding:26px 20px 18px}
+  .dial .brand{margin-bottom:0}
+}
+
+/* mobile compact: shrink headings & padding on phones */
+@media(max-width:700px){
+  html{font-size:14px}
+  body{font-size:15px}
+  .preview{padding:34px 18px 46px}
+  .preview-head{margin-bottom:24px;gap:12px}
+  .preview-no{font-size:1.9rem}
+  .preview-title{font-size:1.35rem}
+  .dial .brand b{font-size:1.4rem}
+  .dial{padding:22px 18px 16px}
+  .nums b{font-size:1.15rem}
+  .verdict{padding:12px 14px}
+  .shell>*{min-width:0}
+  .cta{display:none}
+  .dir a{display:block;padding:12px 2px}
+  .dir b{margin-right:10px}
+  .dir span{display:block;margin-top:2px}
+}
+
+.langsw{margin-top:12px;font-size:.7rem;letter-spacing:.06em}
+.langsw a{cursor:pointer;color:var(--ink2);padding:0 9px;border:1px solid var(--rule);border-radius:999px;background:rgba(255,255,255,.35);display:inline-flex;align-items:center;height:22px;box-sizing:border-box}
+.langsw a[data-lang="zh"]{font-size:.62rem;padding:0 7px}
+.langsw a+a{margin-left:6px}
+.langsw a.on{color:var(--accent);border-color:var(--accent);font-weight:700}
+
+/* mobile nav: sticky bar + drop + pager */
+.mbar,.mdrop,.mscrim,.mpager{display:none}
+@media(max-width:900px){
+  .mbar{display:flex;position:fixed;top:0;left:0;right:0;z-index:15;background:rgba(244,243,240,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--rule);align-items:center;gap:10px;padding:10px 16px;transform:translateY(-110%);transition:transform .25s}
+  .mbar.show{transform:none}
+  .mbar .no{color:var(--accent);font-weight:700;font-size:.8rem;letter-spacing:.08em}
+  .mbar .t{font-weight:600;font-size:.9rem;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left}
+  .mbar .toc{font:inherit;font-size:.78rem;color:var(--ink2);border:1px solid var(--rule);border-radius:14px;padding:2px 12px;background:#fff}
+  .mdrop{position:fixed;left:0;right:0;top:0;z-index:14;background:var(--bg);border-bottom:1px solid var(--rule);padding:52px 20px 12px;box-shadow:0 12px 30px rgba(0,0,0,.10);transform:translateY(-105%);transition:transform .25s;display:block}
+  .mdrop.show{transform:none}
+  .mdrop a{display:flex;gap:14px;align-items:baseline;padding:10px 2px;text-decoration:none;color:var(--ink);border-top:1px dotted var(--rule);font-size:.95rem}
+  .mdrop a:first-child{border-top:0}
+  .mdrop a .n{color:#c9c4b8;font-weight:600;font-size:.8rem;width:24px;flex:none}
+  .mdrop a.on{color:var(--accent);font-weight:700}
+  .mdrop a.on .n{color:var(--accent)}
+  .mscrim{display:block;position:fixed;inset:0;z-index:13;background:rgba(38,36,31,.25);opacity:0;pointer-events:none;transition:opacity .25s}
+  .mscrim.show{opacity:1;pointer-events:auto}
+  .mpager{display:flex;gap:10px;margin-top:32px}
+  .mpager a{flex:1}
+  .mpager a{display:block;border:1px solid var(--rule);background:rgba(255,255,255,.6);border-radius:3px;padding:12px 10px;text-decoration:none;color:var(--ink);text-align:center;cursor:pointer}
+  .mpager small{display:block;color:var(--ink2);font-size:.68rem;letter-spacing:.12em;margin-bottom:2px}
+  .mpager b{font-size:.9rem;font-weight:600}
+  .mpager a.off{display:none}
+}
+</style>
+</head>
+<body>
+<div class="mbar" id="mbar"><span class="no"></span><span class="t"></span><button class="toc" id="mtoc">目录 &#9662;</button></div>
+<div class="mscrim" id="mscrim"></div>
+<nav class="mdrop" id="mdrop" aria-label="目录"></nav>
+<div class="shell">
+  <aside class="dial">
+    <div class="brand">
+      <small>AI Enablement Showcase</small>
+      <b>Chuting (Telie) Zhang</b>
+      <div class="role">AI Enablement · Workflow Automation</div>
+      <div class="langsw"><a data-lang="en">EN</a><a data-lang="zh">中文</a><a data-lang="fr">FR</a></div>
+      <span class="more" id="aboutOpen">About →</span>
+    </div>
+    <div class="stage" id="stage">
+      <div class="orb" id="orb"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div><div class="blob b5"></div><div class="grain"></div></div>
+    </div>
+    <div class="foot">
+      <div class="tags"><span>AI Enablement</span><span>Low-code</span><span>流程自动化</span><span>本地化方案</span></div>
+      <div class="contact iconrow sm">
+        <a href="mailto:telie_zhang@163.com" title="telie_zhang@163.com" aria-label="Email"><svg><use href="#i-mail"/></svg></a>
+        <a href="mailto:chuting.zhang@edu.escp.eu" title="Recruitment · chuting.zhang@edu.escp.eu" aria-label="Recruitment email"><svg><use href="#i-brief"/></svg></a>
+        <a href="https://www.linkedin.com/in/chutingzhang" target="_blank" rel="noopener" title="LinkedIn" aria-label="LinkedIn"><svg><use href="#i-in"/></svg></a>
+        <a href="https://github.com/chutinaa" target="_blank" rel="noopener" title="GitHub" aria-label="GitHub"><svg><use href="#i-gh"/></svg></a>
+      </div>
+      <div class="meta"><span>© 2026 Chuting Zhang · AI Enablement Showcase</span></div>
+    </div>
+  </aside>
+  <main class="preview" id="preview"></main>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></symbol>
+<symbol id="i-brief" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></symbol>
+<symbol id="i-in" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 1 1 0-4.124 2.062 2.062 0 0 1 0 4.124zM7.119 20.452H3.555V9h3.564v11.452z"/></symbol>
+<symbol id="i-gh" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55 0-.27-.01-1.18-.02-2.14-3.2.7-3.87-1.54-3.87-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.69 1.25 3.35.96.1-.75.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.16 1.18.92-.26 1.9-.38 2.88-.39.98 0 1.96.13 2.88.39 2.19-1.49 3.15-1.18 3.15-1.18.63 1.58.23 2.75.12 3.04.74.81 1.18 1.83 1.18 3.09 0 4.42-2.7 5.39-5.26 5.67.41.36.78 1.06.78 2.14 0 1.54-.01 2.79-.01 3.17 0 .31.21.67.8.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></symbol>
+</defs></svg>
+<div class="about-bg" id="aboutBg"></div>
+<aside class="about" id="about" aria-hidden="true">
+  <button class="close" id="aboutClose" aria-label="关闭">×</button>
+  <small>About</small>
+  <div class="mehead"><img src="assets/avatar.jpg" alt="" class="avatar"></div>
+  <h4>Background</h4>
+  <p>我在 Operations 实习中完整做过真实业务的工作全流程，发现其中有大量重复、可自动化的环节。我不想只把 AI 当一次性工具，而是把它沉淀成可复现的工作流，团队核心流程由此从小时级手工压缩到分钟级。在此之外，我出于好奇心持续探索新的 AI 协作方式：可复制的不是某个工具，是一套搭建框架和方法。</p>
+  <p class="ghline"><a href="https://github.com/chutinaa" target="_blank" rel="noopener"><svg><use href="#i-gh"/></svg>部分项目已同步上线 GitHub →</a></p>
+  <h4>What I do</h4>
+  <ul>
+    <li>拆解业务流程，把隐性规则写成可执行的口径</li>
+    <li>用 low-code + AI 把流程落成可交付的工具，不逐行写码</li>
+    <li>设计验收与测试机制，让工具在别人手里也可靠</li>
+  </ul>
+  <h4>Contact</h4>
+  <div class="iconrow">
+    <a href="mailto:telie_zhang@163.com" title="telie_zhang@163.com" aria-label="Email"><svg><use href="#i-mail"/></svg></a>
+    <a href="mailto:chuting.zhang@edu.escp.eu" title="Recruitment · chuting.zhang@edu.escp.eu" aria-label="Recruitment email"><svg><use href="#i-brief"/></svg></a>
+    <a href="https://www.linkedin.com/in/chutingzhang" target="_blank" rel="noopener" title="LinkedIn" aria-label="LinkedIn"><svg><use href="#i-in"/></svg></a>
+    <a href="https://github.com/chutinaa" target="_blank" rel="noopener" title="GitHub" aria-label="GitHub"><svg><use href="#i-gh"/></svg></a>
+  </div>
+  </aside>
+
+<script src="i18n/en.js"></script>
+<script src="i18n/fr.js"></script>
+<script>
+/* ============================================================
+   CONTENT LAYER — single source of truth
+   ============================================================ */
+const SECTIONS_ZH = [
+{
+  no:"00", title:"Overview", tag:"定位",
+  star:[{label:"",zh:"", html:`
+    <p style="font-size:1.05em;max-width:44em;line-height:1.9">
+    业务一线的重度 AI 使用者，AI 自动化 workflow 的探索者。这些业务流程我都完整做过，再自己动手把它们自动化：独立交付 <b>6 个生产级工具</b>，将团队核心 Excel 流程从小时级压缩到分钟级。<br><br>
+    我的能力不在写代码，在于：<b>拆解流程 → 定义规则 → 指挥 AI 落地 → 设计验证机制兜底</b>。
+    </p>
+    <div class="metrics">
+      <div><b>6</b><small>生产级工具</small></div>
+      <div><b>2,380</b><small>测试断言</small></div>
+      <div><b>120k+</b><small>行数据规模</small></div>
+      <div><b>0</b><small>token · 数据外传</small></div>
+    </div>
+    <nav class="dir">
+      <a data-goto="1"><b>01</b>月报自动化 <span>—— 从小时级手工汇总到一键生成，交叉核对机制兜底</span></a>
+      <a data-goto="2"><b>02</b>文档智能核查 <span>—— 离线 OCR + 容错比对，把逐份人工核对变成批量判定</span></a>
+      <a data-goto="3"><b>03</b>团队工具平台 <span>—— 6 个工具一个入口，全部离线可用、零安装</span></a>
+      <a data-goto="4"><b>04</b>个人求职 Agent <span>—— 自己搭的多技能 Agent 产品</span></a>
+      <a data-goto="5"><b>05</b>成果与方法论 <span>—— 数字之外，沉淀出一套可复制的落地方法</span></a>
+    </nav>
+    <button class="cta" data-goto="1">主打案例 →</button>`}]
+},
+{
+  no:"01", title:"月报自动化框架", tag:"主打案例", demo:"demo/monthly_report_demo.html",
+  star:[
+    {label:"Context",zh:"业务问题",items:[
+      "团队月度业务报告完全依赖人工 Excel 操作：两张源表合计 12 万+ 行（历史明细 10 万+、另一张台账 2 万+），叠加大量计算函数，每改一处就崩溃一次，每次制作 ≥1 小时。",
+      "真实事故：汇总数多出 3 万导致下游公式全部匹配不上；插入行引发连锁错位；跨月复制时公式未全量更新，同一报告混用两套统计口径。"]},
+    {label:"Methodology",zh:"方法与判断",html:`
+      <figure class="chart">
+      <svg viewBox="0 0 680 340">
+<g class="lbl"><text x="0" y="60">流程</text></g>
+<g><text x="0" y="118" class="lbl">我</text><text x="0" y="134" class="sm mut">业务判断</text></g>
+<g><text x="0" y="204" class="lbl">AI</text><text x="0" y="220" class="sm mut">代码实现</text></g>
+<g><text x="0" y="272" class="lbl">兜底</text></g>
+
+<g fill="var(--mist1)" opacity=".55"><rect x="96" y="40" width="132" height="32" rx="3"/><rect x="238" y="40" width="132" height="32" rx="3"/><rect x="380" y="40" width="132" height="32" rx="3"/><rect x="522" y="40" width="132" height="32" rx="3"/></g>
+<g text-anchor="middle"><text x="162" y="61">① 数据预处理</text><text x="304" y="61">② 汇总报表</text><text x="446" y="61">③ 趋势图</text><text x="588" y="61">④ 邮件直出</text></g>
+<g stroke="var(--ink2)" fill="none" opacity=".5"><path d="M228 56 L238 56"/><path d="M370 56 L380 56"/><path d="M512 56 L522 56"/></g>
+
+<g fill="var(--accent-soft)" stroke="var(--accent)" stroke-opacity=".45"><rect x="96" y="90" width="132" height="66" rx="3"/><rect x="238" y="90" width="132" height="66" rx="3"/><rect x="380" y="90" width="132" height="66" rx="3"/><rect x="522" y="90" width="132" height="66" rx="3"/></g>
+<g text-anchor="middle" class="sm">
+ <text x="162" y="112">哪些数据算有效</text><text x="162" y="130">怎么归属月份</text><text x="162" y="148">缺什么必须停下</text>
+ <text x="304" y="112">统计口径怎么定</text><text x="304" y="130">哪些指标要剔除</text><text x="304" y="148">呈现取舍</text>
+ <text x="446" y="121">看哪几个指标</text><text x="446" y="139">异常值怎么显示</text>
+ <text x="588" y="121">对方看到什么</text><text x="588" y="139">措辞与结构</text>
+</g>
+
+<g fill="#fff" stroke="var(--rule)"><rect x="96" y="176" width="132" height="42" rx="3"/><rect x="238" y="176" width="132" height="42" rx="3"/><rect x="380" y="176" width="132" height="42" rx="3"/><rect x="522" y="176" width="132" height="42" rx="3"/></g>
+<g text-anchor="middle" class="sm mut"><text x="162" y="202">解析 · 清洗 · 校验</text><text x="304" y="202">计算 · 生成表格</text><text x="446" y="202">绘图</text><text x="588" y="202">生成 .eml</text></g>
+
+<rect x="96" y="240" width="558" height="40" rx="3" fill="var(--mist3)" opacity=".55"/>
+<text x="375" y="258" text-anchor="middle">我设计的验收测试：34 套 · 2,380 条断言</text>
+<text x="375" y="273" text-anchor="middle" class="sm mut">规则被改动或数据对不上，跑测试立刻报红</text>
+<text x="0" y="316" class="sm mut">结果：制作时间从 ≥1 小时降到分钟级，且不随数据量增长退化。</text>
+</svg>
+      <figcaption>人机分工：流程四步中，我定业务规则，AI 负责代码实现，测试兜底</figcaption>
+      </figure>
+      <figure class="chart">
+      <svg viewBox="0 0 680 330">
+<text x="0" y="18" class="lbl">同一件事，我改过三次规则</text>
+<g>
+ <rect x="0" y="40" width="200" height="82" rx="3" fill="#fff" stroke="var(--rule)"/>
+ <text x="14" y="60" class="sm acc">我看到</text>
+ <text x="14" y="80" class="sm">同一份报告里出现了</text><text x="14" y="96" class="sm">两套不同的统计口径</text><text x="14" y="112" class="sm mut">跨月复制时公式没全更新</text>
+ <path d="M100 126 L100 146" stroke="var(--accent)" fill="none"/><path d="M96 140 L100 147 L104 140" fill="var(--accent)"/>
+ <rect x="0" y="150" width="200" height="76" rx="3" fill="var(--accent-soft)"/><rect x="0" y="150" width="3" height="76" fill="var(--accent)"/>
+ <text x="14" y="170" class="sm acc">我定的规则</text>
+ <text x="14" y="190" class="sm">全表统一为</text><text x="14" y="208" class="sm"><tspan font-weight="600">首次处理时间所在月</tspan></text>
+</g>
+<g transform="translate(240 0)">
+ <rect x="0" y="40" width="200" height="82" rx="3" fill="#fff" stroke="var(--rule)"/>
+ <text x="14" y="60" class="sm acc">我看到</text>
+ <text x="14" y="80" class="sm">汇总类和无归属类混在</text><text x="14" y="96" class="sm">指标里，看不出真实分布</text>
+ <path d="M100 126 L100 146" stroke="var(--accent)" fill="none"/><path d="M96 140 L100 147 L104 140" fill="var(--accent)"/>
+ <rect x="0" y="150" width="200" height="76" rx="3" fill="var(--accent-soft)"/><rect x="0" y="150" width="3" height="76" fill="var(--accent)"/>
+ <text x="14" y="170" class="sm acc">我定的规则</text>
+ <text x="14" y="190" class="sm">从口径中<tspan font-weight="600">剔除这两类</tspan></text><text x="14" y="208" class="sm">只留可横向对比的部分</text>
+</g>
+<g transform="translate(480 0)">
+ <rect x="0" y="40" width="200" height="82" rx="3" fill="#fff" stroke="var(--rule)"/>
+ <text x="14" y="60" class="sm acc">我看到</text>
+ <text x="14" y="80" class="sm">月份归属仍有歧义，</text><text x="14" y="96" class="sm">同一条数据会在月间漂</text>
+ <path d="M100 126 L100 146" stroke="var(--accent)" fill="none"/><path d="M96 140 L100 147 L104 140" fill="var(--accent)"/>
+ <rect x="0" y="150" width="200" height="76" rx="3" fill="var(--accent-soft)"/><rect x="0" y="150" width="3" height="76" fill="var(--accent)"/>
+ <text x="14" y="170" class="sm acc">我定的规则</text>
+ <text x="14" y="190" class="sm"><tspan font-weight="600">收紧并固定</tspan>决定月定义</text><text x="14" y="208" class="sm">写进测试，不允许再漂</text>
+</g>
+<g stroke="var(--rule)" fill="none"><path d="M200 188 L240 188"/><path d="M440 188 L480 188"/></g>
+<text x="0" y="266" class="sm mut">这三条不是工具功能，是业务规则。工具只是把它们固定下来，让别人也改不坏。</text>
+<text x="0" y="292" class="sm mut">口径一旦写进测试，报告就不会再出现"同一份文件里两套算法"。</text>
+</svg>
+      <figcaption>业务判断的演进：看到问题 → 重定规则 → 写进测试固定下来</figcaption>
+      </figure>
+      <ul>
+      <li>报告不再靠截图或复制粘贴拼装，从源头杜绝截图模糊、格式错乱。</li>
+      <li>人机分工：我定义全部统计口径与业务规则（如"归属月以首次处理时间为准"；呈现策略——罗列全量 case 还是突出影响最大的重点，这类取舍 AI 给不了答案），AI 负责代码实现，我设计验收测试。</li>
+      <li>关键设计不是"更快"，是把人为出错的可能性从流程里设计掉：多重交叉核对，上下表汇总数必须一致，Gap 自动标红报错。</li>
+      <li>测试有效性自证：故意篡改判定条件，验证该报错的测试真的会红——测试守护真实口径，不是摆设。</li>
+      </ul>`},
+    {label:"Output",zh:"产出",html:`
+      <ul><li>单文件交付（约 1.2MB），零安装、零依赖、完全离线可用。</li></ul>`},
+    {label:"Result",zh:"结果",items:[
+      "制作耗时：≥1 小时 → 分钟级，且不再受数据量增长影响。",
+      "34 套自动化测试、2,380 条断言全绿，统计口径持续受守护。",
+      "上线后杜绝了手工时代的口径与错位类事故。"]}
+  ]
+},
+{
+  no:"02", title:"文档智能核查", tag:"主打案例", demo:"demo/doc_check_demo.html",
+  star:[
+    {label:"Context",zh:"业务问题",items:[
+      "审核环节需逐份核查客户提交的申请文档（docx / PDF / 扫描图片），比对关键字段与系统记录是否一致。",
+      "全团队仅一人负责，纯人眼逐字段比对，耗时且有漏检风险；文档含机密商业信息。"]},
+    {label:"Methodology",zh:"方法与判断",html:`
+      <div class="verdict">关键判断：这个场景<b>不该用云端 LLM</b>。机密文档没有合规通道外发给外部模型——本地方案不是"更省钱的选择"，是唯一可行的选择；审核还要求判定可复现、可审计，LLM 的非确定性输出天然不适合。</div>
+      <figure class="chart">
+      <svg viewBox="0 0 660 300">
+<rect x="0" y="46" width="430" height="180" rx="6" fill="var(--mist3)" fill-opacity=".18" stroke="var(--accent)" stroke-dasharray="5 4"/>
+<text x="14" y="70" class="lbl">我的电脑 · 全程离线</text>
+<g fill="#fff" stroke="var(--rule)"><rect x="16" y="116" width="90" height="56" rx="3"/><rect x="122" y="116" width="110" height="56" rx="3"/><rect x="248" y="116" width="80" height="56" rx="3"/></g>
+<rect x="344" y="116" width="70" height="56" rx="3" fill="var(--accent)"/>
+<g text-anchor="middle"><text x="61" y="139" class="sm">文档进入</text><text x="61" y="157" class="sm mut">docx / PDF / 图片</text>
+<text x="177" y="134" class="sm">取出文字</text><text x="177" y="150" class="sm mut">docx 原生直读</text><text x="177" y="164" class="sm mut">图片走本地 OCR</text>
+<text x="288" y="139" class="sm">规则判定</text><text x="288" y="157" class="sm mut">明文规则</text>
+<text x="379" y="139" class="sm" style="fill:#fff">结果</text><text x="379" y="157" class="sm" style="fill:#fff;opacity:.85">可复现</text></g>
+<g stroke="var(--ink2)" fill="none" opacity=".55"><path d="M106 144 L122 144"/><path d="M232 144 L248 144"/><path d="M328 144 L344 144"/></g>
+<g stroke="#c0605e" fill="none"><path d="M430 144 L510 144" stroke-dasharray="5 4"/><path d="M462 132 L478 156"/><path d="M478 132 L462 156"/></g>
+<rect x="522" y="116" width="130" height="56" rx="3" fill="#fff" stroke="#c0605e" stroke-dasharray="5 4"/>
+<text x="587" y="139" text-anchor="middle" class="sm" style="fill:#c0605e">云端 LLM / API</text><text x="587" y="157" text-anchor="middle" class="sm" style="fill:#c0605e;opacity:.8">未采用</text>
+<text x="470" y="190" text-anchor="middle" class="sm" style="fill:#c0605e">文档不出本机</text>
+<text x="0" y="256" class="sm mut">用系统自带的 OCR 引擎：零安装、零 API 成本、零 token 外传，判定规则明文可审计。</text>
+<text x="0" y="278" class="sm mut">人眼逐份比对（分钟级）→ 秒级出结果，同一份文档任何时候跑出来都一样。</text>
+</svg>
+      <figcaption>数据边界：整条链路在本机完成，云端方案未采用</figcaption>
+      </figure>
+      <ul>
+      <li>按文本来源可信度分级：docx 直接解析原生文本（零依赖、100% 准确）；PDF/图片才走 Windows 系统内置 OCR 引擎（Windows.Media.Ocr，PowerShell + WinRT 调用）本地兜底，离线、免安装、无需管理员权限。两种来源用不同严格度的判定口径。</li>
+      <li>全程本地运行：零 API 成本、零 token 消耗、数据不出本机、离线可用。</li>
+      </ul>`},
+    {label:"Output",zh:"产出",html:`
+      <ul><li>单文件 HTML 工具，拖入文档即出判定结果，关键字段自动标绿/标红。</li></ul>`},
+    {label:"Result",zh:"结果",items:[
+      "单份核查从人工逐字段比对（分钟级）降至秒级：上传 → 点击 → 出结果。",
+      "消除人眼漏检风险，判定结果可复现、可追溯。",
+      "case 响应时效大幅提升，支撑月均 1,500\u20132,000 个 case 的审核流量。"]},
+    {label:"Open Source",zh:"开源",html:`
+      <p style="margin:0;font-size:.82rem;color:var(--ink2)">这套本地 OCR 方案已抽出通用版并<a href="https://github.com/chutinaa/local-ocr-kit" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--rule)">开源（local-ocr-kit →）</a>，含引擎、可复用配方与网页版。</p>`}
+  ]
+},
+{
+  no:"03", title:"团队工具平台", tag:"体系交付", demo:"demo/tools_hub_demo.html", demoLabel:"Tools Overview &nbsp;六个工具的清单 · 点卡片展开",
+  star:[
+    {label:"System",zh:"体系亮点",html:`
+      <p style="margin-bottom:14px;color:var(--ink2)">4 个正式工具 + 4 个配套教学版 + 统一入口 Hub，共 9 个交付物；多源数据合并、批量格式校验、跨站点数据转换等流程从小时级压缩到分钟级。</p>
+      <ul>
+      <li>每个工具配教学版和测试数据，产品说明、底层逻辑都成文沉淀。</li>
+      <li>全套完全离线化（样式、图标、解析库全部内嵌），换机器、断网均可运行，实测 9/9 通过。</li>
+      <li>统一 Hub 入口 + 统一视觉风格，按产品标准交付——是体系，不是零散脚本。</li>
+      </ul>
+      <div class="verdict">判断演进：从「逐个做工具」到「按产品标准建平台」——统一入口、统一风格、全套离线单文件，Hub 集中呈现整套工具，不是零散脚本。</div>
+      <figure class="chart shotfig"><img src="assets/hub_home.png" alt="Tools Hub 首页界面" loading="lazy"><figcaption>Hub 首页 · 真实界面（系统名已作通用化处理）</figcaption></figure>`}
+  ]
+},
+{
+  no:"04", title:"个人求职 Agent", tag:"Agent定制", demo:"demo/agent_demo.html", demoLabel:"Live Demo &nbsp;点一个任务，看六个组件怎么分工",
+  star:[
+    {label:"Context",zh:"背景",html:`
+      <ul>
+      <li>求职材料散：简历有多个版本，项目证据分散在文档、截图、代码里，每投一个岗位都要重新翻一遍。</li>
+      <li>直接让 AI 写简历求职信，会过度包装、编造动机——写得好看，但不真实，不敢用。</li>
+      <li>所以给自己搭了一个围绕「经历库」运行的定制 agent：先把真实经历建成档，再在档上做岗位匹配、简历定制、面试准备。</li>
+      </ul>`},
+    {label:"Build",zh:"怎么搭",html:`
+      <ul>
+      <li>核心是<b>分流机制</b>：主指令不做具体事，只判断任务类型、分流给对应 skill——每一层管什么、怎么做，都落得非常清楚（52 条规则 / 11 组）。</li>
+      <li>11 个定制 skill 没有一个是现成的：想让它形成什么功能，就自己一点点投喂出来——入库整理、定制产出、决策评估、风格守门。</li>
+      <li>数据分层：原始证据 → 结构化经历 → 定制产物；对外表达最后过一道风格守门，验收思路和工作侧同一套。</li>
+      </ul>
+      <div class="rfg">
+      <svg class="ringsvg" viewBox="-152 -152 304 304" data-a="-1" aria-label="Agent 分层架构图">
+      <circle r="130" class="ring rg3"/><circle r="92" class="ring rg2"/><circle r="54" class="ring rg1"/>
+      <circle r="26" class="core"/><text y="5" class="coretxt">我</text>
+      <circle cx="25.9" cy="-88.3" r="4.5" class="sdot"/><circle cx="91.1" cy="-13.1" r="4.5" class="sdot"/><circle cx="83.7" cy="38.2" r="4.5" class="sdot"/><circle cx="49.7" cy="77.4" r="4.5" class="sdot"/><circle cx="0" cy="92" r="4.5" class="sdot"/><circle cx="-49.7" cy="77.4" r="4.5" class="sdot"/><circle cx="-83.7" cy="38.2" r="4.5" class="sdot"/><circle cx="-91.1" cy="-13.1" r="4.5" class="sdot"/><circle cx="-69.5" cy="-60.2" r="4.5" class="sdot"/><circle cx="-25.9" cy="-88.3" r="4.5" class="sdot"/>
+      <text y="44" class="rname nn1">规则</text><text y="82" class="rname nn2">SKILL</text><text y="120" class="rname nn3">知识库</text>
+      <text x="40.8" y="-26.4" class="bignum gg1">52</text><text x="69.4" y="-51.4" class="bignum gg2">11</text><text x="98.1" y="-76.3" class="bignum gg3">60+</text>
+      <circle r="40" stroke-width="28" class="rhit" data-l="1"/><circle r="73" stroke-width="38" class="rhit" data-l="2"/><circle r="111" stroke-width="38" class="rhit" data-l="3"/><circle r="26" class="rhitc rhit" data-l="0"/>
+      </svg>
+      <div class="rcards">
+      <div class="rcard on" data-rc="ov"><small>OVERVIEW</small><h4>分层，不是一句 prompt</h4><p>从内到外：规则管边界，SKILL 管分工，知识库管事实。鼠标移到任意一层看详情。</p></div>
+      <div class="rcard" data-rc="0"><small>CORE · 决策</small><h4>我 · 拍板</h4><p>投不投、用哪个版本、对外说什么——最终决策始终在人。AI 提供分析与草稿，不替我做决定。</p></div>
+      <div class="rcard" data-rc="1"><small>LAYER 01 · 边界</small><h4>规则 · <i>52</i> 条</h4><p>边界与红线：不虚构经历；单岗位定制不回写长期主档；我给定的格式与边界优先级最高。</p></div>
+      <div class="rcard" data-rc="2"><small>LAYER 02 · 分工</small><h4>SKILL · <i>11</i> 个</h4><p>各司其职、按需触发，互不干扰——没有一个是现成的，都是自己一点点投喂出来的。</p><div class="chips"><span>材料入库</span><span>主档合并</span><span>经历补全</span><span>简历选版</span><span>简历定制</span><span>求职信</span><span>风格守门</span><span>面试准备</span><span>JD 评估</span><span>岗位归档</span><span>资源索引</span></div></div>
+      <div class="rcard" data-rc="3"><small>LAYER 03 · 事实</small><h4>知识库 · 持续增加</h4><p>长期经历库是唯一事实来源：原始证据 → 结构化经历 → 定制产物，逐层分离。</p></div>
+      </div>
+      </div>`},
+    {label:"Evolution",zh:"规则演进史",html:`
+      <p style="margin-bottom:12px;color:var(--ink2)">规则不是一次设计出来的，是用的过程中踩了坑，一条条收紧出来的。挑三条：</p>
+      <ul>
+      <li><b>单岗位定制不回写主档。</b>临时定制内容会污染长期经历库 → 单岗位草稿默认不回写 → 主档与一次性产物分层管理。</li>
+      </ul>
+      <div class="verdict"><b>JD 幻觉：</b>最初评估 JD 只看关键词重合度，分数虚高。
+      <p><b>第一次收紧：</b>改成打分制，覆盖基础要点给基础分，再按求职方向加减分。</p>
+      <p><b>第二次收紧：</b>用下来发现不少 JD 本身就是 AI 写的，包装得很漂亮，实际岗位是中后台。于是先模拟这个岗位在公司里的位置、看上下游：真正直接对接商业决策的，内容按原重要度算；只是辅助别人做决策的，内容打折。</p>
+      <p><b>实际用它：</b>复评过一段实习，含金量没有 JD 写的那么高，据此调整了投递优先级。</p></div>
+      <ul>
+      <li><b>不虚构经历。</b>AI 改简历容易过度包装、写成咨询腔 → 只允许轻量优化，不改项目性质、不虚构业务影响 → 每句话都有真实证据兜底。</li>
+      </ul>`},
+    {label:"Result",zh:"结果",html:`
+      <ul>
+      <li>经历一次建档、长期复用：岗位匹配、简历定制、面试准备都在同一个经历库上跑，不再每次从零和 AI 聊。</li>
+      <li>真实用例：用 JD 评估规则复评手里的机会，识破包装、修正了投递优先级。</li>
+      <li>这套「分层 + 分流 + 守门」的搭法，和工作侧是同一套方法，见 05。</li>
+      </ul>
+      <figure class="chart shotfig"><img src="assets/agent_home.png" alt="求职 Agent 首页界面" loading="lazy"><figcaption>Agent 首页 · 真实界面</figcaption></figure>`}
+  ]
+},
+{
+  no:"05", title:"成果与方法论", tag:"一览",
+  star:[
+    {label:"Results",zh:"成果一览",html:`
+      <div class="nums">
+        <div><b>4</b><span>个精选案例</span></div>
+        <div><b>1h → 1min</b><span>月报制作耗时</span></div>
+        <div><b>10/10</b><span>文档核查基线全对<br>此前要逐份人工核</span></div>
+        <div><b>9/9</b><span>9 个工具全部断网可用<br>打开即用、零安装</span></div>
+        <div><b>120k+</b><span>单次报告处理的数据行数</span></div>
+      </div>`},
+    {label:"Method",zh:"同一个闭环，四个案例都在跑",html:`
+      <div class="loop">
+        <svg viewBox="0 0 760 150">
+          <defs>
+            <marker id="m5ar" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L8 4L0 8z" fill="#6a63a6"/></marker>
+            <marker id="m5ar2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L8 4L0 8z" fill="#c0605e"/></marker>
+          </defs>
+          <rect x="30" y="30" width="190" height="58" rx="10" fill="#aab2f0" opacity=".28" stroke="#aab2f0"/>
+          <text x="125" y="55" text-anchor="middle" font-size="14" font-weight="700" fill="#1c1b19">人 · 定规则</text>
+          <text x="125" y="74" text-anchor="middle" font-size="10.5" fill="#6b6862">口径 · 红线 · 判断标准</text>
+          <rect x="285" y="30" width="190" height="58" rx="10" fill="#b6e0d8" opacity=".35" stroke="#8ec7bc"/>
+          <text x="380" y="55" text-anchor="middle" font-size="14" font-weight="700" fill="#1c1b19">AI · 做实现</text>
+          <text x="380" y="74" text-anchor="middle" font-size="10.5" fill="#6b6862">代码 · 重复劳动 · 批量执行</text>
+          <rect x="540" y="30" width="190" height="58" rx="10" fill="#f0c2cc" opacity=".35" stroke="#d99aa9"/>
+          <text x="635" y="55" text-anchor="middle" font-size="14" font-weight="700" fill="#1c1b19">验收 · 守门</text>
+          <text x="635" y="74" text-anchor="middle" font-size="10.5" fill="#6b6862">数字对拍 · 风格拦截</text>
+          <line x1="222" y1="59" x2="281" y2="59" stroke="#6a63a6" stroke-width="1.6" marker-end="url(#m5ar)"/>
+          <line x1="477" y1="59" x2="536" y2="59" stroke="#6a63a6" stroke-width="1.6" marker-end="url(#m5ar)"/>
+          <path d="M635 92 v22 q0 10 -10 10 H135 q-10 0 -10 -10 V96" fill="none" stroke="#c0605e" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#m5ar2)"/>
+          <rect x="300" y="114" width="160" height="20" rx="10" fill="#fdfdfc"/>
+          <text x="380" y="128" text-anchor="middle" font-size="10.5" fill="#c0605e" font-weight="600">不过 → 打回，规则再收紧</text>
+        </svg>
+        <div class="cols">
+          <p><b>业务判断永远在人手里。</b>口径怎么定、什么算错、哪些动作必须先确认，隐性经验写成明确规则，AI 不替我做业务决定（月报按哪个月份统计这类口径，都是人先拍板、再写进规则）。</p>
+          <p><b>实现交给 AI，人不逐行写码。</b>规则之内自动跑；规则之外必须停下来问。改动有备份、有回读、有报告（本站四个案例的工具全部这样搭出来，我没有逐行写过代码）。</p>
+          <p><b>错的东西出不去。</b>关键数字单独提炼、逐一对拍，对不上就打回；拿不准的不直接采用，交回人工复核；对外产出最后再过一道语言风格拦截（月报工具背后有 2,388 条自动核对，有一条不过，报告就出不了门）。</p>
+        </div>
+      </div>`},
+    {label:"Transferable",zh:"同一套方法，落地两次",html:`
+      <div class="trans">
+        <div class="side">
+          <h4>工作侧<small>案例 01–03</small></h4>
+          <p>skill 体系沉淀口径与工程教训，领域知识库存业务规则，月报、核查、工具平台都长在这套底座上。</p>
+          <a class="back" data-goto="1">回看案例 01–03 →</a>
+        </div>
+        <div class="mid"><span class="lbl">同一套方法</span><span class="arr">⇄</span></div>
+        <div class="side">
+          <h4>个人侧<small>案例 04</small></h4>
+          <p>求职 Agent 用同样的结构再搭一遍：把聊天式的 AI 拆成会分工、有边界的多步骤系统：该调哪个技能调哪个，上下文各管各的。方法可迁移，不绑场景。</p>
+          <a class="back" data-goto="4">看 04 的现场演示 →</a>
+        </div>
+      </div>
+      <div class="starter"><b>这套方法怎么起步</b>
+        <ol>
+          <li>先把口径写成明确规则：什么算对、什么算错、哪些事必须先问人</li>
+          <li>实现交给 AI：写代码、跑批量都让它做，人不逐行写</li>
+          <li>自己设验收标准：结果怎么核对、不过怎么办，先想好再上线</li>
+        </ol>
+      </div>`}
+  ]
+}];
+
+/* i18n runtime: ZH inline above, EN/FR packs in i18n/ */
+function PACK(l){ return l === 'en' ? window.EN : l === 'fr' ? window.FR : null; }
+const UI_ZH = { liveDemo:'Live Demo &nbsp;可直接操作', openTab:'在新标签打开 →', demoTitle:' 演示版', dnote:'已脱敏 · 演示数据全部虚构', prev:'上一篇', next:'下一篇', toc:'目录' };
+let LANG = 'en';
+try { LANG = localStorage.getItem('pf_lang') || 'en'; } catch(e) {}
+if (LANG !== 'zh' && !(PACK(LANG) && PACK(LANG).sections)) LANG = 'zh';
+let SECTIONS = LANG === 'zh' ? SECTIONS_ZH : PACK(LANG).sections;
+function UI(){ return LANG === 'zh' ? UI_ZH : PACK(LANG).ui; }
+
+/* ============================================================
+   DIAL GEOMETRY + INTERACTION
+   ============================================================ */
+const N = SECTIONS.length;
+const STEP = 6;                       // degrees between items
+const RANGE = (N - 1) * STEP;         // total 30° for 6 items
+const RADIUS = 520;                   // large radius -> gentle arc, text stays horizontal
+const ROW = 50;                       // px between items
+const ORB_CX = -230 + 290;               // orb center x inside stage
+let current = 0, angle = 0;
+
+const stage = document.getElementById("stage");
+const orb = document.getElementById("orb");
+const previewEl = document.getElementById("preview");
+
+const arcEls = SECTIONS.map((sec, i) => {
+  const el = document.createElement("div");
+  el.className = "arc-item";
+  el.innerHTML = "<b>" + sec.no + "</b>" + sec.title;
+  el.addEventListener("click", () => goTo(i));
+  stage.appendChild(el);
+  return el;
+});
+
+function layout(active) {
+  const mid = (N - 1) / 2;
+  // list stays centred on the middle item; active pulls it 35% of the way,
+  // then clamp so the list never overlaps the brand block (top) or the foot (bottom)
+  const stR = stage.getBoundingClientRect();
+  const navyFrac = parseFloat(getComputedStyle(stage).getPropertyValue('--navy')) / 100 || .5;
+  const cy = stR.top + stR.height * navyFrac;                 // arc list centre in viewport px
+  const brandEl = document.querySelector('.dial .brand');
+  const footEl = document.querySelector('.dial .foot');
+  let row = ROW;
+  let follow = (mid - active) * row * .35;
+  if (brandEl && footEl && stR.height > 0) {
+    const brandB = brandEl.getBoundingClientRect().bottom + 14;
+    const footT = footEl.getBoundingClientRect().top - 14;
+    // 矮窗口先压缩行距，让整列在品牌区和页脚之间放得下
+    row = Math.max(30, Math.min(ROW, (footT - brandB - 30) / (N - 1)));
+    follow = (mid - active) * row * .35;
+    const topGap = (cy + (0 - mid) * row + follow - 22) - brandB;
+    const botRoom = footT - (cy + (N - 1 - mid) * row + follow + 8);
+    if (topGap < 0) follow += Math.min(-topGap, Math.max(0, botRoom));
+    else if (botRoom < 0) follow -= Math.min(-botRoom, Math.max(0, topGap));
+  }
+  arcEls.forEach((el, i) => {
+    const off = i - active;                         // -5..5
+    const rad = off * STEP * Math.PI / 180;
+    const baseY = (i - mid) * row;
+    const y = baseY + follow;
+    // 行起点沿以球心为圆心的圆弧排布：中间凸向右，两端收回
+    const DMAX = 210, ARC = 24;
+    const dy = Math.min(Math.abs(y), DMAX) / DMAX;
+    // 起点随左栏宽度自适应：窄屏整体左移，保证激活行文字不越出左栏
+    const colW = Math.max(340, innerWidth * .29);   // 左栏宽 = minmax(340px,29%)
+    const base = Math.max(72, Math.min(150, colW - 336));   // 三语统一：按最长的英/法标题留预算
+    const x = base + ARC * Math.sqrt(1 - dy * dy);
+    el.style.transform = "translate(" + x + "px," + (y - 10) + "px)";
+    el.style.opacity = off === 0 ? 1 : Math.max(.3, .75 - Math.abs(off) * .14);
+    el.classList.toggle("active", off === 0);
+  });
+  orb.style.transform = "rotate(" + (-RANGE / 2 + active * STEP) + "deg)";
+}
+
+addEventListener("resize", () => layout(current));
+
+addEventListener("message", function(e){
+  var h = e.data && e.data.demoHeight;
+  if(!h) return;
+  var f = previewEl.querySelector(".embed iframe");
+  if(!f || e.source !== f.contentWindow) return;
+  var nh = Math.max(600, h + 4);
+  if(Math.abs(nh - (parseInt(f.style.height) || 0)) > 8) f.style.height = nh + "px";
+});
+function renderPreview(idx) {
+  const sec = SECTIONS[idx];
+  const body = sec.star.map(s => {
+    const inner = s.html ? s.html : "<ul>" + s.items.map(t => "<li>" + t + "</li>").join("") + "</ul>";
+    const label = s.label ? '<div class="star-label">' + s.label + (s.zh ? '<span>' + s.zh + '</span>' : '') + '</div>' : '';
+    return '<div class="star-section">' + label + inner + '</div>';
+  }).join("");
+  const demo = sec.demo
+    ? '<div class="embed"><div class="elabel"><span>' + (sec.demoLabel || UI().liveDemo) + '</span>' +
+      '<a href="' + sec.demo + '" target="_blank" rel="noopener">' + UI().openTab + '</a></div>' +
+      '<div class="frame"><iframe src="' + sec.demo + '" title="' + sec.title + UI().demoTitle + '" loading="lazy"></iframe></div></div>'
+    : '';
+  previewEl.innerHTML =
+    '<div class="preview-head"><span class="preview-no">' + sec.no + '</span>' +
+    '<h2 class="preview-title">' + sec.title + '</h2>' +
+    '<span class="preview-tag">' + sec.tag + '</span></div>' + body + demo + (sec.demo && sec.no !== "04" ? '<div class="dnote">' + UI().dnote + '</div>' : "") + mpager(idx);
+  previewEl.classList.remove("entered"); void previewEl.offsetWidth; previewEl.classList.add("entered");
+}
+
+function goTo(i) {
+  i = Math.max(0, Math.min(N - 1, i));
+  if (i === current && previewEl.innerHTML) return;
+  current = i; angle = i * STEP;
+  layout(i); renderPreview(i); msync();
+  window.scrollTo(0, 0);
+}
+/* mobile nav */
+function mpager(idx){
+  const prev = idx > 0 ? SECTIONS[idx-1] : null, next = idx < N-1 ? SECTIONS[idx+1] : null;
+  return '<div class="mpager">' +
+    (prev ? '<a data-goto="'+(idx-1)+'"><small>&larr; '+UI().prev+' '+prev.no+'</small><b>'+prev.title+'</b></a>' : '<a class="off"></a>') +
+    (next ? '<a data-goto="'+(idx+1)+'"><small>'+UI().next+' '+next.no+' &rarr;</small><b>'+next.title+'</b></a>' : '<a class="off"></a>') + '</div>';
+}
+const mbarEl = document.getElementById("mbar"), mdropEl = document.getElementById("mdrop"), mscrimEl = document.getElementById("mscrim");
+function buildMdrop(){ mdropEl.innerHTML = SECTIONS.map((s,i) => '<a data-goto="'+i+'"><span class="n">'+s.no+'</span>'+s.title+'</a>').join(""); }
+buildMdrop();
+function msync(){
+  mbarEl.querySelector(".no").textContent = SECTIONS[current].no;
+  mbarEl.querySelector(".t").textContent = SECTIONS[current].title;
+  mdropEl.querySelectorAll("a").forEach((a,i) => a.classList.toggle("on", i === current));
+}
+function mclose(){ mdropEl.classList.remove("show"); mscrimEl.classList.remove("show"); }
+document.getElementById("mtoc").addEventListener("click", () => { mdropEl.classList.toggle("show"); mscrimEl.classList.toggle("show"); });
+mscrimEl.addEventListener("click", mclose);
+mdropEl.addEventListener("click", e => { const b = e.target.closest("[data-goto]"); if(b){ goTo(parseInt(b.dataset.goto,10)); mclose(); } });
+addEventListener("scroll", () => { const on = innerWidth <= 900 && scrollY > 220; mbarEl.classList.toggle("show", on); if(!on) mclose(); }, {passive:true});
+
+/* language switch */
+const _aboutP = document.querySelector('.about > p');
+const _aboutLis = document.querySelectorAll('.about ul li');
+const _gh = document.querySelector('.ghline a');
+const _tags = document.querySelectorAll('.dial .tags span');
+const ZH_STATIC = { aboutBg:_aboutP.innerHTML, aboutDo:[..._aboutLis].map(li=>li.innerHTML), ghline:_gh.innerHTML, tags:[..._tags].map(t=>t.textContent) };
+function applyStatic(){
+  const p = PACK(LANG);
+  document.documentElement.lang = LANG === 'zh' ? 'zh-CN' : LANG;
+  _aboutP.innerHTML = p ? p.ui.aboutBg : ZH_STATIC.aboutBg;
+  _aboutLis.forEach((li,i)=>{ li.innerHTML = p ? p.ui.aboutDo[i] : ZH_STATIC.aboutDo[i]; });
+  _gh.innerHTML = p ? '<svg><use href="#i-gh"/></svg>' + p.ui.ghline : ZH_STATIC.ghline;
+  _tags.forEach((t,i)=>{ t.textContent = p ? p.ui.tags[i] : ZH_STATIC.tags[i]; });
+  document.getElementById('mtoc').innerHTML = UI().toc + ' &#9662;';
+  document.querySelectorAll('.langsw a').forEach(a=>a.classList.toggle('on', a.dataset.lang === LANG));
+}
+function applyLang(l){
+  if (l !== 'zh' && !(PACK(l) && PACK(l).sections)) l = 'zh';
+  LANG = l; try { localStorage.setItem('pf_lang', l); } catch(e) {}
+  SECTIONS = l === 'zh' ? SECTIONS_ZH : PACK(l).sections;
+  arcEls.forEach((el,i)=>{ el.innerHTML = '<b>' + SECTIONS[i].no + '</b>' + SECTIONS[i].title; });
+  buildMdrop(); applyStatic();
+  if (current >= 0 && previewEl.innerHTML) { layout(current); renderPreview(current); msync(); }
+}
+document.querySelectorAll('.langsw a').forEach(a=>a.addEventListener('click', ()=>applyLang(a.dataset.lang)));
+applyLang(LANG);
+
+current = -1; goTo(0);
+
+/* drag: vertical drag on orb, 0.25°/px, snap on release */
+let drag = null;
+orb.addEventListener("pointerdown", e => { drag = { y: e.clientY, a: angle }; orb.setPointerCapture(e.pointerId); orb.style.transition = "none"; });
+orb.addEventListener("pointermove", e => {
+  if (!drag) return;
+  angle = Math.max(0, Math.min(RANGE, drag.a + (e.clientY - drag.y) * .25));
+  orb.style.transform = "rotate(" + (-RANGE / 2 + angle) + "deg)";
+  const n = Math.round(angle / STEP);
+  if (n !== current) { current = n; layout(n); renderPreview(n); }
+});
+orb.addEventListener("pointerup", () => { drag = null; orb.style.transition = ""; angle = current * STEP; layout(current); });
+
+previewEl.addEventListener("click", e => { const b = e.target.closest("[data-goto]"); if (b) goTo(parseInt(b.dataset.goto, 10)); });
+function rset(i){ const svg = previewEl.querySelector(".ringsvg"); if (!svg) return; svg.dataset.a = String(i);
+  previewEl.querySelectorAll(".rcard").forEach(c => { const k = c.getAttribute("data-rc"); c.classList.toggle("on", k === "ov" ? i < 0 : parseInt(k, 10) === i); }); }
+previewEl.addEventListener("mouseover", e => { const h = e.target.closest ? e.target.closest(".rhit") : null; if (h) rset(parseInt(h.getAttribute("data-l"), 10)); });
+previewEl.addEventListener("click", e => { const h = e.target.closest ? e.target.closest(".rhit") : null; if (h) rset(parseInt(h.getAttribute("data-l"), 10)); });
+previewEl.addEventListener("mouseout", e => { if (!e.target.closest) return; const s2 = e.target.closest(".ringsvg"); if (s2 && !(e.relatedTarget && e.relatedTarget.closest(".ringsvg"))) rset(-1); });
+document.querySelector(".dial").addEventListener("wheel", e => { e.preventDefault(); goTo(current + (e.deltaY > 0 ? 1 : -1)); }, { passive: false });
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") return setAbout(false);
+  if (document.body.classList.contains("about-open")) return;
+  if (e.key === "ArrowDown" || e.key === "ArrowRight") goTo(current + 1);
+  if (e.key === "ArrowUp" || e.key === "ArrowLeft") goTo(current - 1);
+});
+
+/* about panel */
+function setAbout(open) {
+  document.body.classList.toggle("about-open", open);
+  document.getElementById("about").setAttribute("aria-hidden", String(!open));
+}
+document.getElementById("aboutOpen").addEventListener("click", () => setAbout(true));
+document.querySelector(".dial .brand b").addEventListener("click", () => setAbout(true));
+document.getElementById("aboutClose").addEventListener("click", () => setAbout(false));
+document.getElementById("aboutBg").addEventListener("click", () => setAbout(false));
+</script>
+</body>
+</html>

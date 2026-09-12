@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Monthly Report Pipeline · Live Demo</title>
+<style>
+:root{
+  --bg:#f4f3f0; --card:#fbfaf8; --ink:#1c1b19; --ink2:#6b6862; --rule:#dcd9d2;
+  --accent:#6a63a6; --accent-soft:#6a63a614;
+  --ok:#2f7a52; --ok-bg:#e6f2ea; --warn:#9a6a12; --warn-bg:#f8efd9; --bad:#a7423b; --bad-bg:#f6e3e0;
+  --sans:"Segoe UI","Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.7;min-height:100vh;display:flex;flex-direction:column}
+body.embedded{min-height:0;display:block}
+body.embedded .wrap{padding:22px 22px 26px}
+.wrap{width:100%;max-width:1180px;margin:0 auto;padding:28px 28px 40px;flex:1}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+header small{display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink2)}
+header h1{font-size:22px;font-weight:500}
+.badge{font-size:12px;color:var(--warn);background:var(--warn-bg);border:1px solid #ead9b0;border-radius:999px;padding:3px 12px;white-space:nowrap}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;font-size:13px;padding:7px 14px;border-radius:8px;border:1px solid var(--rule);background:var(--card);color:var(--ink);cursor:pointer;transition:border-color .15s,background .15s}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.primary:hover{background:#5a5494}
+button:disabled{opacity:.45;cursor:default}
+button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.note{font-size:12.5px;color:var(--ink2);background:var(--accent-soft);border-radius:10px;padding:10px 14px;margin-bottom:14px}
+.explain-hint{display:none;font-size:12.5px;color:var(--accent);margin:-8px 0 14px}
+body.explain .explain-hint{display:block}
+.steps{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.step{flex:1;min-width:150px;display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;border:1px solid var(--rule);background:var(--card);font-size:12.5px;color:var(--ink2)}
+.step i{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-style:normal;background:#eceae4;color:var(--ink2);flex:none}
+.step.done i{background:var(--ok-bg);color:var(--ok)}.step.cur{border-color:var(--accent);color:var(--ink)}.step.cur i{background:var(--accent);color:#fff}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:18px 20px;margin-bottom:16px}
+.card h2{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);font-weight:500;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.card h2 .r{font-size:12px;letter-spacing:0;text-transform:none;color:var(--ink2);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.mod{position:relative;transition:box-shadow .2s,border-color .2s}
+body.explain .mod{cursor:help;border-color:var(--accent)}
+body.explain .mod:hover{box-shadow:0 0 0 3px var(--accent-soft)}
+.mod.focus{box-shadow:0 0 0 3px var(--accent-soft),0 10px 30px rgba(106,99,166,.15);border-color:var(--accent)}
+.locked{opacity:.45;pointer-events:none}
+.tech{margin:4px 0 2px;padding-left:18px;font-size:12.5px;color:var(--ink2);line-height:1.8}.tech b{color:var(--ink)}
+.files{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+@media(max-width:760px){.files{grid-template-columns:1fr}}
+.file{border:1px dashed var(--rule);border-radius:10px;padding:12px 14px;background:#fff;display:flex;gap:12px;align-items:center;min-height:64px}
+.file .ic{width:34px;height:40px;border-radius:5px;display:grid;place-items:center;font-size:10px;font-weight:600;color:#fff;background:#8a8f9c;flex:none}
+.file.on{border-style:solid;border-color:var(--accent)}.file.on .ic{background:var(--accent)}
+.file b{display:block;font-weight:500;font-size:13px}.file span{font-size:11.5px;color:var(--ink2)}
+.file .drop{color:var(--ink2);font-size:12.5px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+select{font:inherit;font-size:13px;padding:6px 10px;border-radius:8px;border:1px solid var(--rule);background:#fff}
+.pre{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:12px}
+.pre div{border:1px solid var(--rule);border-radius:10px;padding:8px 12px;background:#fff;font-size:12.5px;color:var(--ink2)}
+.pre div b{display:block;font-size:18px;font-weight:500;color:var(--ink);letter-spacing:.01em}
+.pre div.del b{color:var(--bad)}.pre div.keep b{color:var(--ok)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:860px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{border:1px solid var(--rule);border-radius:10px;padding:10px 14px;background:#fff}
+.kpi small{display:block;font-size:11.5px;color:var(--ink2)}.kpi b{font-size:22px;font-weight:500}.kpi em{font-style:normal;font-size:12px;margin-left:6px}
+.up{color:var(--ok)}.down{color:var(--bad)}.flat{color:var(--ink2)}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:8px}
+#t1,#t2{overflow-x:auto}
+th{text-align:left;font-weight:500;color:var(--ink2);font-size:12px;padding:7px 10px;border-bottom:1px solid var(--rule);vertical-align:bottom}
+td{padding:7px 10px;border-bottom:1px solid #eceae4;white-space:nowrap}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+tr.sub td{background:#f3f1ec;font-weight:500}tr.tot td{border-top:2px solid var(--rule);font-weight:600}
+tr.oth td{color:var(--ink2)}
+.cap{font-size:12px;color:var(--ink2);margin:4px 0 14px}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+.seg button{border:0;border-radius:0;padding:5px 12px;font-size:12.5px}
+.seg button.on{background:var(--accent);color:#fff}
+.judge:empty{display:none}
+.judge{border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 10px 10px 0;padding:12px 16px;margin:14px 0 6px;font-size:13px}
+.judge b{display:block;font-size:12px;letter-spacing:.1em;color:var(--accent);margin-bottom:4px}
+.banner{display:none;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:12px}
+.banner.bad{display:block;background:var(--bad-bg);color:var(--bad);border:1px solid #e4c3bf}
+.banner.ok{display:block;background:var(--ok-bg);color:var(--ok);border:1px solid #c3dccb}
+.chart{width:100%;height:auto;display:block}
+.mail{border:1px solid var(--rule);border-radius:10px;background:#fff;overflow:hidden}
+.mail .hd{padding:10px 14px;border-bottom:1px solid var(--rule);font-size:12.5px;color:var(--ink2);line-height:1.6}
+.mail .hd b{color:var(--ink);font-weight:500}
+.mail .bd{padding:14px}
+.mail .bd table{font-size:12.5px}
+.foot{margin-top:26px;font-size:12px;color:var(--ink2);border-top:1px solid var(--rule);padding-top:14px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.embedded .badge{display:none}
+.wm{padding:14px 20px 18px;font-size:11.5px;letter-spacing:.06em;color:var(--ink2);opacity:.7;text-align:center}
+#xTip{position:fixed;z-index:60;display:none;max-width:340px;background:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 12px 40px rgba(0,0,0,.18);font-size:13px;line-height:1.65;pointer-events:none}
+#xTip b{display:block;font-size:12px;color:var(--accent);letter-spacing:.1em;margin-bottom:4px}
+.pulse{animation:pulse .9s ease-in-out 2}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(106,99,166,0)}50%{box-shadow:0 0 0 6px rgba(106,99,166,.35)}}
+.hint{font-size:12px;color:var(--ink2)}
+.empty{color:var(--ink2);font-size:13px;padding:22px 0;text-align:center}
+.empty small{display:block;margin-top:6px;color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div><small>AI Enablement Showcase · Live Demo</small><h1>Monthly Report Pipeline · Demo</h1></div>
+  <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+    <span class="badge">Demo · all data fictitious · not the production tool</span>
+    <div class="toolbar"><button id="btnDemo" class="primary">Load sample</button><button id="btnExplain">How it works</button><button id="btnReset">Reset</button></div>
+  </div>
+</header>
+<div class="note">Scenario (fictitious): a service team reports every month on how customer service requests were handled. Two source tables (request details + processing log) run to tens of thousands of rows, previously stitched together by hand in Excel. The demo keeps the production tool's skeleton: <b>upload &amp; preprocess → summary tables → trend chart → email output</b>, with metric-definition switching and cross-checks. Everything runs locally in the browser.</div>
+<div class="explain-hint">How-it-works mode: hover over any module to see its role in the pipeline. Click "How it works" again to exit.</div>
+
+<div class="steps" id="steps">
+  <div class="step" data-s="1"><i>1</i>Upload · Preprocess</div><div class="step" data-s="2"><i>2</i>Summary · Definition</div><div class="step" data-s="3"><i>3</i>Trend chart</div><div class="step" data-s="4"><i>4</i>Email output</div>
+</div>
+
+<section class="card mod" id="c1" data-x="c1">
+  <h2>① Upload · Preprocess <span class="r"><label>Report month</label><select id="month"><option>2026-06</option><option>2026-07</option><option selected>2026-08</option></select><button id="btnPre" disabled>Preprocess</button></span></h2>
+  <div class="files">
+    <div class="file" id="fA"><div class="ic">CSV</div><div><b>request_details.csv</b><span class="drop">Drop file here — in this demo, "Load sample" fills it in</span></div></div>
+    <div class="file" id="fB"><div class="ic">CSV</div><div><b>processing_log.csv</b><span class="drop">Drop file here — in this demo, "Load sample" fills it in</span></div></div>
+  </div>
+  <div class="pre" id="pre"></div>
+  <div class="hint" id="preHint" style="margin-top:8px"></div>
+</section>
+
+<section class="card mod locked" id="c2" data-x="c2">
+  <h2>② Summary tables <span class="r"><span>Metric definition</span><span class="seg"><button id="segA">By submit month</button><button id="segB" class="on">By first-decision month</button></span></span></h2>
+  <div class="banner" id="audit"></div>
+  <div id="kpis" class="kpis"></div>
+  <div id="t1"></div>
+  <div id="t2"></div>
+  <div class="judge" id="judge"></div>
+  <div class="row" style="margin-top:12px"><button id="btnTamper">Simulate a manual slip</button><span class="hint">Alters one cell of the team table — see whether the cross-check catches it (in the manual era this kind of error could slip past the naked eye).</span></div>
+</section>
+
+<section class="card mod locked" id="c3" data-x="c3">
+  <h2>③ Trend chart <span class="r hint">last 6 months · first-pass rate &amp; volume</span></h2>
+  <div id="chart"></div>
+</section>
+
+<section class="card mod locked" id="c4" data-x="c4">
+  <h2>④ Email output <span class="r"><button id="btnEml" class="primary">Generate .eml</button><span class="hint">open the download in a mail client and it is the finished email — no screenshots, no pasted tables</span></span></h2>
+  <div id="mail"></div>
+</section>
+
+<section class="card mod" id="c5">
+  <h2>⑤ How it is built <span class="r hint">behind this demo</span></h2>
+  <ul class="tech">
+    <li><b>Pure front-end</b>: single-file HTML, zero dependencies, works offline.</li>
+    <li><b>Seeded random data</b>: every run is reproducible; the numbers look real and are all fictitious.</li>
+    <li><b>Definition A/B switch</b>: shows how the statistical rule changes the result; tables and chart recompute together.</li>
+    <li><b>Cross-checks</b>: every table is recomputed independently; any mismatch flags red at once.</li>
+    <li><b>Email output</b>: the SVG chart converts to PNG and embeds via cid into the .eml; opened in a mail client it is a ready-to-send draft.</li>
+  </ul>
+</section>
+
+<div class="foot"><span>Definitions: <b>by first-decision month</b> = a request belongs to the month it was first processed; a first rejection counts as that month's failure, and unprocessed requests stay out of the denominator. <b>By submit month</b> = it belongs to the month it was submitted; requests submitted but not yet processed drag the rate down.</span><span>Demo · single-file HTML · works offline</span></div>
+</div>
+<div id="xTip"><b id="xTitle"></b><div id="xBody"></div></div>
+
+<script>
+/* ---------- fictional data (seeded) ---------- */
+let seed=20260911;const rnd=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;};
+const TEAMS=['North','South','East','West','Key Accounts','Online'];
+const OTHERS=['Support Desk','Overseas'];
+const MONTHS=['2026-03','2026-04','2026-05','2026-06','2026-07','2026-08','2026-09'];
+function daysIn(m){const [y,mo]=m.split('-').map(Number);return new Date(y,mo,0).getDate();}
+function genData(){
+  const rows=[];let n=100000;
+  for(const m of MONTHS){
+    const cnt=m==='2026-09'?127:1900+Math.floor(rnd()*420);
+    for(let i=0;i<cnt;i++){
+      const r=rnd();const team=r<.86?TEAMS[Math.floor(rnd()*TEAMS.length)]:OTHERS[Math.floor(rnd()*2)];
+      const d=1+Math.floor(rnd()*daysIn(m));const sub=new Date(m+'-'+String(d).padStart(2,'0')+'T'+String(8+Math.floor(rnd()*10)).padStart(2,'0')+':00:00');
+      const lagH=team==='Support Desk'?0.5+rnd()*2:4+Math.pow(rnd(),2)*140;
+      let first=new Date(sub.getTime()+lagH*3600e3);
+      if(m==='2026-09'||(m==='2026-08'&&rnd()<.06))first=null;
+      const rej=first&&team!=='Support Desk'&&rnd()<(team==='Online'?.22:.14);
+      rows.push({id:'REQ-'+(n++),cust:'C'+String(1000+Math.floor(rnd()*2600)),team,sub,first,rej});
+    }
+  }
+  for(let i=0;i<7;i++)rows.push({...rows[40+i*170]});   /* duplicated ids */
+  return rows;
+}
+const ym=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+const fmt=n=>n.toLocaleString('en-US');
+/* ---------- engine ---------- */
+function preprocess(rows,month){
+  const seen=new Set(),dup=[];const kept=[],over=[];
+  for(const r of rows){if(seen.has(r.id)){dup.push(r);continue;}seen.add(r.id);(ym(r.sub)>month?over:kept).push(r);}
+  return {kept,over,dup,pending:kept.filter(r=>!r.first).length};
+}
+/* mode A: by submit month; mode B: by first-decision month */
+function monthly(rows,month,mode){
+  const idx=MONTHS.indexOf(month);const ms=MONTHS.slice(Math.max(0,idx-5),idx+1);
+  return ms.map(m=>{
+    const grp=mode==='A'?rows.filter(r=>ym(r.sub)===m):rows.filter(r=>r.first&&ym(r.first)===m);
+    const sub=rows.filter(r=>ym(r.sub)===m);
+    const den=mode==='A'?grp.length:grp.length;
+    const ok=grp.filter(r=>r.first&&!r.rej).length;
+    const done=grp.filter(r=>r.first);
+    const sla=done.length?done.reduce((a,r)=>a+(r.first-r.sub)/3600e3,0)/done.length:null;
+    return {m,cases:sub.length,cust:new Set(sub.map(r=>r.cust)).size,den,ok,rate:den?ok/den:null,sla};
+  });
+}
+function teamTable(rows,month,mode){
+  const inM=r=>mode==='A'?ym(r.sub)===month:(r.first&&ym(r.first)===month);
+  const grp=rows.filter(inM);
+  const line=(name,rs,full)=>{const ok=rs.filter(r=>r.first&&!r.rej).length,done=rs.filter(r=>r.first);
+    return {name,cases:rs.length,cust:new Set(rs.map(r=>r.cust)).size,rate:full&&rs.length?ok/rs.length:null,sla:full&&done.length?done.reduce((a,r)=>a+(r.first-r.sub)/3600e3,0)/done.length:null};};
+  const main=TEAMS.map(t=>line(t,grp.filter(r=>r.team===t),true));
+  const sales=line('Sales Total',grp.filter(r=>TEAMS.includes(r.team)),true);sales.cls='sub';
+  const oth=line('Others',grp.filter(r=>!TEAMS.includes(r.team)),false);oth.cls='oth';
+  const tot=line('Total',grp,true);tot.cls='tot';
+  return [...main,sales,oth,tot];
+}
+function audit(t1,t2,month){
+  const cur=t1.find(x=>x.m===month);const tot=t2.find(x=>x.name==='Total');const sales=t2.find(x=>x.name==='Sales Total'),oth=t2.find(x=>x.name==='Others');
+  const errs=[];
+  if(tot.cases!==cur.den)errs.push(`Team table Total ${fmt(tot.cases)} ≠ monthly table, current month ${fmt(cur.den)} (diff ${fmt(tot.cases-cur.den)})`);
+  const sum=t2.filter(x=>!x.cls).reduce((a,x)=>a+x.cases,0);
+  if(sum!==sales.cases)errs.push(`Sum of the six teams ${fmt(sum)} ≠ Sales Total ${fmt(sales.cases)}`);
+  if(sales.cases+oth.cases!==tot.cases)errs.push(`Sales Total + Others ${fmt(sales.cases+oth.cases)} ≠ Total ${fmt(tot.cases)}`);
+  return errs;
+}
+/* ---------- state & render ---------- */
+const $=id=>document.getElementById(id);
+let RAW=null,PRE=null,MODE='B',T1=null,T2=null,TAMPERED=false;
+function setStep(n){document.querySelectorAll('.step').forEach(s=>{const k=+s.dataset.s;s.classList.toggle('done',k<n);s.classList.toggle('cur',k===n);});}
+function pct(x){return x==null?'-':(x*100).toFixed(1)+'%';}
+function hrs(x){return x==null?'-':x.toFixed(1)+' h';}
+function delta(a,b,inv){if(a==null||b==null||b===0)return '<em class="flat">＝</em>';const d=(a-b)/b;if(Math.abs(d)<.0005)return '<em class="flat">＝</em>';const good=inv?d<0:d>0;return `<em class="${good?'up':'down'}">${d>0?'+':''}${(d*100).toFixed(1)}%</em>`;}
+function loadFiles(){RAW=genData();$('fA').classList.add('on');$('fB').classList.add('on');
+  $('fA').querySelector('span').textContent=fmt(RAW.length)+' rows · loaded';$('fB').querySelector('span').textContent=fmt(RAW.filter(r=>r.first).length)+' rows · loaded';$('btnPre').disabled=false;}
+function doPre(){if(!RAW)return;const month=$('month').value;PRE=preprocess(RAW,month);
+  $('pre').innerHTML=`<div><b>${fmt(RAW.length)}</b>raw rows</div><div class="del"><b>−${fmt(PRE.over.length)}</b>submitted after report month · removed</div><div><b>${fmt(PRE.dup.length)}</b>duplicate request IDs · counted only</div><div><b>${fmt(PRE.pending)}</b>not yet processed · kept</div><div class="keep"><b>${fmt(PRE.kept.length)}</b>effective rows</div>`;
+  $('preHint').textContent='The only rule that deletes data is "submitted after the report month"; every other anomaly is counted, never removed. This step used to be a manual monthly filter — forget it or get it wrong, and nothing errors: the numbers just drift quietly.';
+  TAMPERED=false;compute();['c2','c3','c4'].forEach(id=>$(id).classList.remove('locked'));setStep(2);}
+function compute(){const month=$('month').value;T1=monthly(PRE.kept,month,MODE);T2=teamTable(PRE.kept,month,MODE);
+  if(TAMPERED){const w=T2.find(x=>x.name==='West');w.cases+=30000;}
+  render();}
+function render(){const month=$('month').value;const cur=T1[T1.length-1],prev=T1[T1.length-2]||{};
+  const errs=audit(T1,T2,month);const b=$('audit');
+  if(errs.length){b.className='banner bad';b.innerHTML='<b>Cross-check failed</b> — fix it before the report goes out:<br>'+errs.map(e=>'· '+e).join('<br>');}
+  else{b.className='banner ok';b.textContent='Cross-check passed: team Total = monthly current month; six teams sum to Sales Total; Sales Total + Others = Total.';}
+  $('kpis').innerHTML=`<div class="kpi"><small>Requests this month</small><b>${fmt(cur.cases)}</b>${delta(cur.cases,prev.cases)}</div><div class="kpi"><small>Customers this month</small><b>${fmt(cur.cust)}</b>${delta(cur.cust,prev.cust)}</div><div class="kpi"><small>First-pass success</small><b>${pct(cur.rate)}</b>${delta(cur.rate,prev.rate)}</div><div class="kpi"><small>Avg handling time</small><b>${hrs(cur.sla)}</b>${delta(cur.sla,prev.sla,true)}</div>`;
+  $('t1').innerHTML=`<table><thead><tr><th>Month</th><th class="n">Submitted</th><th class="n">Customers</th><th class="n">${MODE==='A'?'Submitted this month (denom.)':'First processed this month (denom.)'}</th><th class="n">First-pass OK</th><th class="n">First-pass rate</th><th class="n">Avg time</th></tr></thead><tbody>`+
+    T1.map(x=>`<tr${x.m===month?' class="sub"':''}><td>${x.m}</td><td class="n">${fmt(x.cases)}</td><td class="n">${fmt(x.cust)}</td><td class="n">${fmt(x.den)}</td><td class="n">${fmt(x.ok)}</td><td class="n">${pct(x.rate)}</td><td class="n">${hrs(x.sla)}</td></tr>`).join('')+'</tbody></table><div class="cap">Table 1 · monthly trend, last 6 months</div>';
+  $('t2').innerHTML=`<table><thead><tr><th>Team</th><th class="n">Requests</th><th class="n">Customers</th><th class="n">First-pass rate</th><th class="n">Avg time</th></tr></thead><tbody>`+
+    T2.map(x=>`<tr class="${x.cls||''}"><td>${x.name}</td><td class="n">${fmt(x.cases)}</td><td class="n">${fmt(x.cust)}</td><td class="n">${pct(x.rate)}</td><td class="n">${hrs(x.sla)}</td></tr>`).join('')+`</tbody></table><div class="cap">Table 2 · ${month} team table. Fixed row structure: 6 sales teams → Sales Total → Others → Total. Others (non-sales) shows counts only — no rate, no timing — so instant-approval desks cannot inflate the overall rate.</div>`;
+  $('judge').innerHTML=MODE==='B'
+    ?'<b>Business judgment · why "first-decision month"</b>The report answers "how well did we process this month", not "how much came in". By submit month, a request filed at month-end and processed next month reads as this month\'s failure or drags the denominator; by first-decision month, each request enters the denominator exactly once — when first processed — and the unprocessed stay out. Switch to "by submit month" and compare the same data.'
+    :'<b>Business judgment · the trouble with "by submit month"</b>Same data, but under this definition the current month reads low and last month gets restated: month-end submissions enter the denominator before anyone has touched them. In the manual era the two definitions once coexisted in one report after a cross-month formula copy; the tool pins the definition as a single constant the whole sheet obeys.';
+  renderChart();renderMail();}
+function renderChart(){const W=1000,H=280,L=60,R=30,T=28,B=40;const bw=(W-L-R)/T1.length*.5;const xs=T1.map((_,i)=>L+bw/2+8+i*(W-L-R-bw-16)/(T1.length-1));
+  const maxC=Math.max(...T1.map(x=>x.cases))*1.7;const rates=T1.map(x=>x.rate).filter(x=>x!=null);const rmin=Math.min(...rates)-.04,rmax=Math.max(...rates)+.02;
+  const yC=v=>T+(H-T-B)*(1-v/maxC);const yR=v=>T+(H-T-B)*(1-(v-rmin)/(rmax-rmin));
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${H}" font-family="inherit" font-size="13">`;
+  [0,.25,.5,.75,1].forEach(t=>{const y=T+(H-T-B)*(1-t);s+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="#dedbd3"/><text x="${L-8}" y="${y+4}" text-anchor="end" fill="#8a877f">${Math.round(maxC*t)}</text>`;});
+  T1.forEach((x,i)=>{s+=`<rect x="${xs[i]-bw/2}" y="${yC(x.cases)}" width="${bw}" height="${H-B-yC(x.cases)}" rx="3" fill="#c9c4e6"/><text x="${xs[i]}" y="${H-B+18}" text-anchor="middle" fill="#6b6862">${x.m}</text>`;});
+  const pts=T1.map((x,i)=>x.rate==null?null:`${xs[i]},${yR(x.rate)}`).filter(Boolean).join(' ');
+  s+=`<polyline points="${pts}" fill="none" stroke="#6a63a6" stroke-width="2.2"/>`;
+  T1.forEach((x,i)=>{if(x.rate==null)return;s+=`<circle cx="${xs[i]}" cy="${yR(x.rate)}" r="4" fill="#fbfaf8" stroke="#6a63a6" stroke-width="2"/><text x="${xs[i]}" y="${yR(x.rate)-10}" text-anchor="middle" fill="#6a63a6" font-weight="600">${pct(x.rate)}</text>`;});
+  s+=`<text x="${W-R}" y="12" text-anchor="end" fill="#8a877f">bars = submissions · line = first-pass rate (${MODE==='A'?'by submit month':'by first-decision month'})</text></svg>`;
+  $('chart').innerHTML=s;}
+let CHART_PNG='';
+function chartSvgString(){const el=$('chart').querySelector('svg');if(!el)return '';const c=el.cloneNode(true);c.setAttribute('xmlns','http://www.w3.org/2000/svg');c.setAttribute('width','1000');c.setAttribute('height','280');c.setAttribute('font-family','Segoe UI, Microsoft YaHei, sans-serif');c.style.background='#ffffff';return new XMLSerializer().serializeToString(c);}
+function chartToPng(){return new Promise(res=>{const svg=chartSvgString();if(!svg)return res('');const img=new Image();const url='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+  img.onload=()=>{const cv=document.createElement('canvas');cv.width=2000;cv.height=560;const g=cv.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,2000,560);g.drawImage(img,0,0,2000,560);res(cv.toDataURL('image/png'));};img.onerror=()=>res('');img.src=url;});}
+function mailHtml(imgSrc){const month=$('month').value;const cur=T1[T1.length-1],prev=T1[T1.length-2]||{};
+  const td='padding:6px 10px;border-bottom:1px solid #e6e3dc;font-size:13px;';const tdn=td+'text-align:right;';
+  return `<div style="font-family:Segoe UI,Microsoft YaHei,sans-serif;color:#1c1b19;max-width:720px">
+<p style="margin:0 0 12px">Hi all, here is the ${month} monthly report (definition: ${MODE==='A'?'by submit month':'by first-decision month'}).</p>
+<p style="margin:0 0 12px">We received <b>${fmt(cur.cases)}</b> requests this month (${((cur.cases-prev.cases)/prev.cases*100).toFixed(1)}% vs last month), first-pass success <b>${pct(cur.rate)}</b>, average handling time <b>${hrs(cur.sla)}</b>.</p>
+<table style="border-collapse:collapse;width:100%"><colgroup><col style="width:34%"><col><col><col><col></colgroup><thead><tr><th style="${td}text-align:left;color:#6b6862">Team</th><th style="${tdn}color:#6b6862">Requests</th><th style="${tdn}color:#6b6862">Customers</th><th style="${tdn}color:#6b6862">First-pass rate</th><th style="${tdn}color:#6b6862">Avg time</th></tr></thead><tbody>`+
+  T2.map(x=>`<tr style="${x.cls==='tot'?'font-weight:600':x.cls==='sub'?'background:#f3f1ec;font-weight:500':''}"><td style="${td}">${x.name}</td><td style="${tdn}">${fmt(x.cases)}</td><td style="${tdn}">${fmt(x.cust)}</td><td style="${tdn}">${pct(x.rate)}</td><td style="${tdn}">${hrs(x.sla)}</td></tr>`).join('')+
+  `</tbody></table>
+<p style="margin:16px 0 6px;font-size:13px;color:#1c1b19"><b>6-month trend</b> (bars = submissions, line = first-pass rate)</p>
+${imgSrc?`<img src="${imgSrc}" width="720" style="display:block;width:720px;max-width:100%;height:auto;border:1px solid #e6e3dc;border-radius:6px" alt="6-month trend chart">`:'<p style="font-size:12px;color:#a7423b">(chart rendering)</p>'}
+<p style="margin:12px 0 0;font-size:12px;color:#6b6862">Chart embedded as PNG (mail clients do not render SVG), drawn from the same data as the table above. Others = non-sales teams, counts only. Cross-check: ${audit(T1,T2,month).length?'<span style="color:#a7423b">failed — this email must not be sent</span>':'passed'}.</p></div>`;}
+async function renderMail(){const month=$('month').value;CHART_PNG=await chartToPng();
+  $('mail').innerHTML=`<div class="mail"><div class="hd"><b>Subject:</b> ${month} monthly service request report<br><b>To:</b> team-leads@example.com &nbsp; <b>Format:</b> HTML body; tables and trend chart (inline PNG) travel with the email — no screenshots</div><div class="bd">${mailHtml(CHART_PNG)}</div></div>`;}
+const wrap76=b=>b.replace(/(.{76})/g,'$1\r\n');
+async function downloadEml(){const month=$('month').value;if(!CHART_PNG)CHART_PNG=await chartToPng();
+  const html=`<!doctype html><html><body>${mailHtml(CHART_PNG?'cid:trend-chart':'')}</body></html>`;
+  const b64=btoa(unescape(encodeURIComponent(html)));const png=CHART_PNG.split(',')[1]||'';const B='----=_Part_'+Date.now();
+  const eml=`Subject: =?UTF-8?B?${btoa(unescape(encodeURIComponent(month+' monthly service request report')))}?=\r\nTo: team-leads@example.com\r\nX-Unsent: 1\r\nMIME-Version: 1.0\r\nContent-Type: multipart/related; boundary="${B}"; type="text/html"\r\n\r\n--${B}\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n${wrap76(b64)}\r\n`+
+    (png?`--${B}\r\nContent-Type: image/png\r\nContent-Transfer-Encoding: base64\r\nContent-ID: <trend-chart>\r\nContent-Disposition: inline; filename="trend.png"\r\n\r\n${wrap76(png)}\r\n`:'')+`--${B}--\r\n`;
+  const a=document.createElement('a');a.href='data:message/rfc822;base64,'+btoa(unescape(encodeURIComponent(eml)));a.download=`Monthly_Report_${month}.eml`;document.body.appendChild(a);a.click();a.remove();setStep(4);}
+function reset(){RAW=PRE=T1=T2=null;TAMPERED=false;MODE='B';$('segA').classList.remove('on');$('segB').classList.add('on');
+  ['fA','fB'].forEach(id=>{$(id).classList.remove('on');$(id).querySelector('span').textContent='Drop file here — in this demo, "Load sample" fills it in';});
+  $('btnPre').disabled=true;$('pre').innerHTML='';$('preHint').textContent='';['kpis','t1','t2','judge','chart','mail'].forEach(id=>$(id).innerHTML='');$('audit').className='banner';
+  ['c2','c3','c4'].forEach(id=>$(id).classList.add('locked'));document.querySelectorAll('.mod').forEach(m=>m.classList.remove('focus'));setStep(0);$('btnDemo').textContent='Load sample';}
+$('btnPre').onclick=()=>{doPre();setStep(2);};
+$('month').onchange=()=>{if(RAW){['c2','c3','c4'].forEach(id=>$(id).classList.add('locked'));$('pre').innerHTML='';$('preHint').textContent='Report month changed — run preprocess again.';setStep(1);}};
+$('segA').onclick=()=>{if(!PRE)return;MODE='A';$('segA').classList.add('on');$('segB').classList.remove('on');compute();};
+$('segB').onclick=()=>{if(!PRE)return;MODE='B';$('segB').classList.add('on');$('segA').classList.remove('on');compute();};
+$('btnTamper').onclick=()=>{if(!PRE)return;TAMPERED=!TAMPERED;$('btnTamper').textContent=TAMPERED?'Undo the slip':'Simulate a manual slip';compute();if(TAMPERED)$('audit').scrollIntoView({block:'center',behavior:'smooth'});};
+$('btnEml').onclick=()=>{if(T1)downloadEml();};
+$('btnReset').onclick=()=>{if(!playing)reset();};
+/* ---------- autoplay ---------- */
+let playing=false;const wait=ms=>new Promise(r=>setTimeout(r,ms));
+function focus(id){document.querySelectorAll('.mod').forEach(m=>m.classList.toggle('focus',m.id===id));if(id)$(id).scrollIntoView({block:'nearest',behavior:'smooth'});}
+async function pulse(el){el.classList.add('pulse');await wait(900);el.classList.remove('pulse');}
+async function playDemo(){if(playing)return;playing=true;const bd=$('btnDemo');bd.disabled=true;setExplain(false);reset();
+  setStep(1);focus('c1');$('preHint').textContent='Demo 1/4 · drop in the two source tables';await wait(500);await pulse($('fA'));loadFiles();await wait(700);
+  $('preHint').textContent='Demo 1/4 · one-click preprocess';await pulse($('btnPre'));doPre();await wait(1400);
+  focus('c2');$('c2').scrollIntoView({block:'start',behavior:'smooth'});await wait(1600);
+  await pulse($('segA'));$('segA').click();await wait(2200);await pulse($('segB'));$('segB').click();await wait(1200);
+  await pulse($('btnTamper'));$('btnTamper').click();await wait(2200);$('btnTamper').click();await wait(800);
+  setStep(3);focus('c3');await wait(1600);
+  setStep(4);focus('c4');await pulse($('btnEml'));await wait(900);focus(null);
+  $('preHint').textContent='Demo finished. Switch the definition, change the report month and re-preprocess, or click "Generate .eml" to download the finished email.';
+  bd.disabled=false;bd.textContent='Replay';playing=false;}
+$('btnDemo').onclick=playDemo;
+/* ---------- explain ---------- */
+const X={c1:['① Upload · Preprocess','Both source tables read on drop; pick the report month and preprocess in one click. The only rule that deletes rows is "submitted after the report month" (once a manual monthly filter); duplicates and unprocessed items are counted, not removed, with the summary right on the card — what was deleted is in plain sight.'],
+ c2:['② Summary · Definition','Monthly trend table + team table, fixed row structure (6 teams → Sales Total → Others → Total). The metric definition is a single constant the whole sheet obeys; if the three identities up top fail the cross-check, a red banner blocks the report. Defining the metric was a business judgment, not something the code decided.'],
+ c3:['③ Trend chart','Bars = submissions, line = first-pass rate, recomputed with every definition switch. The chart is generated straight from the table data — chart and table cannot disagree.'],
+ c4:['④ Email output','Renders the report as an email body (inline tables, no screenshots) and exports a .eml file — double-click and it opens as a draft in the mail client. If the cross-check failed, the email itself says it must not be sent.']};
+function setExplain(on){document.body.classList.toggle('explain',on);$('btnExplain').classList.toggle('on',on);if(!on)$('xTip').style.display='none';}
+$('btnExplain').onclick=()=>{if(playing)return;setExplain(!document.body.classList.contains('explain'));};
+document.querySelectorAll('.mod').forEach(m=>{m.addEventListener('mouseenter',()=>{if(!document.body.classList.contains('explain'))return;const [t,b]=X[m.dataset.x];$('xTitle').textContent=t;$('xBody').textContent=b;const tip=$('xTip');tip.style.display='block';
+  const r=m.getBoundingClientRect(),tw=tip.offsetWidth,th=tip.offsetHeight;let x=r.right+14,y=r.top;
+  if(x+tw>innerWidth-12){x=Math.max(12,Math.min(innerWidth-tw-12,r.left));y=r.bottom+12;if(y+th>innerHeight-12)y=Math.max(12,r.top-th-12);}
+  if(y+th>innerHeight-12)y=Math.max(12,innerHeight-th-12);tip.style.left=x+'px';tip.style.top=y+'px';});
+  m.addEventListener('mouseleave',()=>{$('xTip').style.display='none';});});
+addEventListener('keydown',e=>{if(e.key==='Escape')setExplain(false);});
+
+/* ---- embed support: report height to parent (same pattern as doc_check_demo; avoids the height feedback loop:
+   report body content height, not documentElement.scrollHeight; embedded body leaves the 100vh flex layout) ---- */
+function postH(){if(window.parent===window)return;try{window.parent.postMessage({demoHeight:Math.max(document.body.scrollHeight,document.body.offsetHeight)},'*');}catch(e){}}
+if(window.parent!==window){document.body.classList.add('embedded');
+  addEventListener('load',postH);addEventListener('resize',postH);
+  if(window.ResizeObserver)new ResizeObserver(postH).observe(document.body);
+  setTimeout(postH,300);}
+reset();
+</script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Team Tools · Overview</title>
+<style>
+:root{
+  --bg:#f4f3f0; --card:#fbfaf8; --ink:#1c1b19; --ink2:#6b6862; --rule:#dcd9d2;
+  --accent:#6a63a6; --accent-soft:#6a63a614;
+  --ok:#2f7a52; --ok-bg:#e6f2ea; --warn:#9a6a12; --warn-bg:#f8efd9; --bad:#a7423b; --bad-bg:#f6e3e0;
+  --sans:"Segoe UI","Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.7;min-height:100vh;display:flex;flex-direction:column}
+body.embedded{min-height:0;display:block}
+body.embedded .wrap{padding:22px 22px 26px}
+.wrap{width:100%;max-width:1180px;margin:0 auto;padding:28px 28px 40px;flex:1}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+header small{display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink2)}
+header h1{font-size:22px;font-weight:500}
+.badge{font-size:12px;color:var(--warn);background:var(--warn-bg);border:1px solid #ead9b0;border-radius:999px;padding:3px 12px;white-space:nowrap}
+.lead{font-size:14px;color:var(--ink2);max-width:820px;margin-bottom:20px}
+.totals{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:22px}
+@media(max-width:980px){.totals{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:560px){.totals{grid-template-columns:repeat(2,1fr)}}
+.tot{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:12px 14px}
+.tot b{display:block;font-size:24px;font-weight:500;line-height:1.2;color:var(--accent)}
+.tot span{font-size:12px;color:var(--ink2)}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.bar h2{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);font-weight:500}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:999px;overflow:hidden;background:#fff}
+.seg button{border:0;border-radius:0;padding:5px 14px;font-size:12.5px;background:transparent;font:inherit;cursor:pointer;color:var(--ink)}
+.seg button.on{background:var(--accent);color:#fff}
+button.lnk{font:inherit;font-size:12.5px;border:1px solid var(--rule);background:var(--card);border-radius:8px;padding:5px 12px;cursor:pointer;color:var(--ink)}
+button.lnk:hover{border-color:var(--accent)}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px}
+@media(max-width:860px){.tools{grid-template-columns:1fr}}
+.tool{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:16px 18px;transition:border-color .15s}
+.tool.hide{display:none}
+.tool .top{display:flex;gap:12px;align-items:flex-start;cursor:pointer}
+.tool .ic{flex:none;width:36px;height:36px;border-radius:9px;display:grid;place-items:center;font-size:12px;font-weight:600;color:var(--ink,#3a3833);background:none;border:1.4px solid currentColor;letter-spacing:.04em}
+.tool .ic svg{width:20px;height:20px}
+.tool .ttl{flex:1}
+.tool .ttl b{font-weight:500;font-size:15px;display:block}
+.tool .ttl span{font-size:12.5px;color:var(--ink2)}
+.tool .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.tag{display:inline-block;font-size:11.5px;padding:1px 9px;border-radius:999px;white-space:nowrap;background:var(--accent-soft);color:var(--accent)}
+.tag.grey{background:#ecebe6;color:var(--ink2)}
+.tag.ok{background:var(--ok-bg);color:var(--ok)}
+.tool .chev{flex:none;color:var(--ink2);font-size:12px;transition:transform .2s;margin-top:4px}
+.tool.open .chev{transform:rotate(90deg)}
+.tool .io{display:grid;grid-template-columns:auto 1fr auto 1fr;gap:4px 8px;align-items:baseline;font-size:12.5px;margin:12px 0 0;padding-top:12px;border-top:1px dashed var(--rule)}
+.tool .io i{font-style:normal;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2)}
+@media(max-width:560px){.tool .io{grid-template-columns:auto 1fr}}
+.tool .det{display:none;margin-top:12px}
+.tool.open .det{display:block}
+.det h4{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);font-weight:500;margin:10px 0 4px}
+.det ul{list-style:none}
+.det li{position:relative;padding-left:14px;font-size:13px;color:var(--ink);margin:3px 0}
+.det li::before{content:"";position:absolute;left:0;top:.75em;width:6px;height:6px;border-radius:50%;background:var(--accent);opacity:.6}
+.det .guard{margin-top:10px;font-size:12.5px;background:var(--warn-bg);color:var(--warn);border-left:3px solid #ead9b0;border-radius:0 8px 8px 0;padding:8px 12px;line-height:1.6}
+.det .guard b{font-weight:500}
+.det .link{margin-top:10px;font-size:12.5px}
+code{font-family:Consolas,monospace;font-size:12px;background:var(--accent-soft);color:var(--accent);padding:1px 5px;border-radius:4px}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:18px 20px;margin-bottom:18px}
+.card h2{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);font-weight:500;margin-bottom:12px}
+.pr{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 22px}
+@media(max-width:860px){.pr{grid-template-columns:1fr}}
+.pr div{display:grid;grid-template-columns:120px 1fr;gap:10px;font-size:13px;padding:8px 0;border-top:1px solid #eceae4}
+.pr div b{font-weight:500;color:var(--ink2)}
+.why{margin-top:14px;font-size:12.5px;color:var(--ink2);background:var(--accent-soft);border-radius:10px;padding:10px 14px;line-height:1.65}
+.foot{margin-top:8px;font-size:12px;color:var(--ink2);border-top:1px solid var(--rule);padding-top:14px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.embedded .badge{display:none}
+.wm{padding:14px 20px 18px;font-size:11.5px;letter-spacing:.06em;color:var(--ink2);opacity:.7;text-align:center}
+@media(max-width:560px){
+  body.embedded .wrap,.wrap{padding:16px 13px 28px}
+  .pr div{grid-template-columns:1fr;gap:2px 0;padding:10px 0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <small>AI Enablement Showcase · Case 03</small>
+    <h1>Team Tools Platform · Overview of Six Tools</h1>
+  </div>
+  <span class="badge">Tool and field names are generalized; no real systems or data</span>
+</header>
+<p class="lead">Beyond the two flagship cases (monthly reporting and document verification), I turned the team's most frequent manual Excel workflows into single-file tools, then unified them under one Hub page. This page is not a tool interface. It is an inventory: what each tool solves, what goes in and out, and which safeguard keeps it honest. Click any card to expand.</p>
+
+<div class="totals">
+  <div class="tot"><b>6</b><span>Production tools</span></div>
+  <div class="tot"><b>4</b><span>Tutorial editions (same source as production)</span></div>
+  <div class="tot"><b>1</b><span>Unified Hub entry point</span></div>
+  <div class="tot"><b>9</b><span>Deliverables, all single-file HTML</span></div>
+  <div class="tot"><b>0</b><span>Install steps · zero dependencies · fully offline</span></div>
+  <div class="tot"><b>9/9</b><span>Passed offline verification</span></div>
+</div>
+
+<div class="bar">
+  <h2>Tool Inventory</h2>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <div class="seg" id="seg"><button data-f="all" class="on">All 6</button><button data-f="pair">Production + Tutorial 4</button><button data-f="solo">Standalone 2</button></div>
+    <button class="lnk" id="btnAll">Expand all</button>
+  </div>
+</div>
+
+<div class="tools" id="tools">
+
+<div class="tool" data-k="pair">
+  <div class="top"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="12" height="12" rx="2"/><rect x="9" y="9" width="12" height="12" rx="2"/></svg></div><div class="ttl"><b>Multi-Source Data Reconciliation</b><span>Compares exports from two systems row by row on key fields and tiers the results with recommended actions</span>
+    <div class="tags"><span class="tag">Production</span><span class="tag">Tutorial</span><span class="tag grey">Excel + CSV input</span></div></div><span class="chev">▶</span></div>
+  <div class="io"><i>Input</i><span>Excel export from the business system + CSV export from the data warehouse</span><i>Output</i><span>Row-level comparison + upload file built from selected rows</span></div>
+  <div class="det">
+    <h4>Problem</h4><ul><li>Records had to be confirmed consistent across two systems before approval. Manually VLOOKUP-ing four fields across a 200-row batch took half a day.</li></ul>
+    <h4>Key mechanics</h4><ul>
+      <li>Four fields are compared: entity ID, customer, region, type. Only a conflict in the entity ID is called an <b>ID conflict</b> (the two systems are talking about different objects); differences in the other three are <b>attribute discrepancies</b> (same object, attributes filled in differently). They follow different handling paths and the terms are never mixed.</li>
+      <li>The status field carries one dimension only (entity ID); attribute discrepancies are separate boolean flags. Rows are sorted by handling tier rather than alphabetically, so the rows needing action come first and voided rows always sink to the bottom.</li>
+      <li>Only clean rows are pre-selected; any row with an attribute discrepancy must be confirmed by hand before it enters the export.</li>
+      <li>The CSV parser handles quoted commas, so customer names containing commas no longer shift entire rows.</li></ul>
+    <div class="guard"><b>Safeguard:</b> rows missing required supporting material are excluded from export by default and flagged with a black-bordered tag. When one request contains a serious issue, the clean rows in the same group are also deselected, so a batch is never uploaded half-complete.</div>
+  </div>
+</div>
+
+<div class="tool" data-k="pair">
+  <div class="top"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h12M9 12h12M9 18h12"/><rect x="3" y="4.4" width="3.2" height="3.2" rx=".6"/><rect x="3" y="10.4" width="3.2" height="3.2" rx=".6"/><rect x="3" y="16.4" width="3.2" height="3.2" rx=".6"/></svg></div><div class="ttl"><b>Batch Record Formatter</b><span>Paste a whole system page; the tool extracts fields, detects the operation type, reconciles counts and exports by region</span>
+    <div class="tags"><span class="tag">Production</span><span class="tag">Tutorial</span><span class="tag grey">Paste / Excel input</span></div></div><span class="chev">▶</span></div>
+  <div class="io"><i>Input</i><span>Raw text pasted from a system page, or an Excel file read by column name</span><i>Output</i><span>Upload files grouped by region</span></div>
+  <div class="det">
+    <h4>Problem</h4><ul><li>Dozens of requests a day were copied one by one from a web page into a template, in inconsistent formats (tabs, pipes and spaces all mixed together).</li></ul>
+    <h4>Key mechanics</h4><ul>
+      <li>Fields are extracted by pattern, not by column position: ticket number, 9–13 digit account ID, site code.</li>
+      <li>The operation type (lock / unlock / change site) is detected by keyword frequency. If more than one type appears, the tool asks the user to split the batch instead of guessing.</li>
+      <li>Excel input is matched by column name (exact match first, then partial match with exclusion words), never by column order.</li></ul>
+    <div class="guard"><b>Safeguard:</b> the record count declared on the page is reconciled against the parsed count. Any gap raises a yellow banner and points to the likely skipped row (a line with a ticket number but missing other fields). Better to warn once too often than to silently drop a record.</div>
+  </div>
+</div>
+
+<div class="tool" data-k="pair">
+  <div class="top"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9.2 14.2l2 2 3.8-4"/></svg></div><div class="ttl"><b>Request-to-Record Verification</b><span>Cross-checks the IDs on a request form against system records, one by one, and highlights differences</span>
+    <div class="tags"><span class="tag">Production</span><span class="tag">Tutorial</span><span class="tag grey">Two-table input</span></div></div><span class="chev">▶</span></div>
+  <div class="io"><i>Input</i><span>Ticket export from the system + spreadsheet submitted by the requester</span><i>Output</i><span>Item-level verification result, usable directly as the review note</span></div>
+  <div class="det">
+    <h4>Problem</h4><ul><li>Approval requires confirming that the request form and the system record refer to the same set of entities. One missed item means one round of rework.</li></ul>
+    <h4>Key mechanics</h4><ul>
+      <li>IDs are normalized first (case, whitespace, hyphens) to remove formatting noise before comparison, reducing false alarms.</li>
+      <li>Results use three colors: match / needs manual confirmation / not found in system, with each item stating exactly where it differs.</li></ul>
+    <div class="guard"><b>Safeguard:</b> if the two tables have different row counts, the tool warns first rather than producing a verdict. IDs not found are listed as a separate group so they are never buried among ID conflicts.</div>
+  </div>
+</div>
+
+<div class="tool" data-k="pair">
+  <div class="top"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13"/><path d="M13.8 4.5L17.3 8l-3.5 3.5"/><path d="M20 16H7"/><path d="M10.2 19.5L6.7 16l3.5-3.5"/></svg></div><div class="ttl"><b>Cross-Site Field Converter</b><span>Bulk-edits site fields and splits the result into one upload file per target platform</span>
+    <div class="tags"><span class="tag">Production</span><span class="tag">Tutorial</span><span class="tag grey">Multi-platform output</span></div></div><span class="chev">▶</span></div>
+  <div class="io"><i>Input</i><span>List of records to be modified</span><i>Output</i><span>Multiple upload files, split by platform</span></div>
+  <div class="det">
+    <h4>Problem</h4><ul><li>Each platform has its own upload template, so one batch of changes had to be split into several files by hand and reformatted for each.</li></ul>
+    <h4>Key mechanics</h4><ul>
+      <li>Original columns are preserved; derived values go into new columns, never overwriting the source, so every change can be traced back.</li>
+      <li>Records are grouped automatically by platform rules, one file per group, with the platform and date in the file name.</li></ul>
+    <div class="guard"><b>Safeguard:</b> the total row count after grouping must equal the input row count. If it does not, the export is refused and the tool reports which group is off.</div>
+  </div>
+</div>
+
+<div class="tool" data-k="solo">
+  <div class="top"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="5.8"/><path d="M15 15l5.5 5.5"/><path d="M8.2 10.5h4.6"/></svg></div><div class="ttl"><b>Document Compliance Check</b><span>Reads Word files natively, falls back to OCR for scans, and verifies declaration documents field by field</span>
+    <div class="tags"><span class="tag">Standalone</span><span class="tag ok">Case 02 flagship</span></div></div><span class="chev">▶</span></div>
+  <div class="io"><i>Input</i><span>System records + submitted Word / PDF / image files</span><i>Output</i><span>Field-level verification result + one-click review conclusion</span></div>
+  <div class="det">
+    <h4>Key mechanics</h4><ul>
+      <li>Native text is extracted first based on file type (Word is read directly from its zip structure); OCR is only the fallback. The two sources carry different confidence levels, so the matching rule and the wording of the verdict switch accordingly, using a single algorithm with one flag.</li>
+      <li>Everything runs locally using the operating system's built-in OCR, with no cloud dependency.</li></ul>
+    <div class="link">Full case study and interactive demo: see Case 02.</div>
+  </div>
+</div>
+
+<div class="tool" data-k="solo">
+  <div class="top"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16"/><path d="M7.5 20v-6"/><path d="M12 20V9"/><path d="M16.5 20v-9.5"/><path d="M7.5 10.5l4.5-4 4.5 3"/></svg></div><div class="ttl"><b>Monthly Report Automation</b><span>Four steps to a finished report: pre-process → summary tables → trend charts → email out</span>
+    <div class="tags"><span class="tag">Standalone</span><span class="tag ok">Case 01 flagship</span></div></div><span class="chev">▶</span></div>
+  <div class="io"><i>Input</i><span>Multiple system exports (100k+ rows)</span><i>Output</i><span>KPI tables, trend charts, ready-to-send email draft</span></div>
+  <div class="det">
+    <h4>Key mechanics</h4><ul>
+      <li>The metric definition is written as one executable rule protected by tests. It changed three times; each time the tests confirmed every downstream table moved together.</li>
+      <li>Tamper self-check: deliberately corrupt one number and all three identity checks must turn red at once. If they do not, the verification itself is broken.</li></ul>
+    <div class="link">Full case study and interactive demo: see Case 01.</div>
+  </div>
+</div>
+
+</div>
+
+<section class="card">
+  <h2>Hub and Shared Design Principles</h2>
+  <div class="pr">
+    <div><b>Entry point</b><span>One Hub page lists every tool in two groups, "frequent" and "other". Each card links to both the production and tutorial editions, and the footer states "N tools · all work offline".</span></div>
+    <div><b>Form factor</b><span>Each tool is a single <code>.html</code> file that opens on double-click. Spreadsheet library, styles and icons are all embedded, so it works even when the corporate network blocks the internet.</span></div>
+    <div><b>Tutorial edition</b><span>Same source code as production, with one switch that adds an explanation layer and sample data. Logic is changed in one place and both editions stay in sync.</span></div>
+    <div><b>Terminology</b><span>Every status word means exactly one thing (for example "ID conflict" refers only to a primary-key conflict; attribute differences have their own name). Before changing any wording, grep the full test suite and separate assertion descriptions from decision criteria.</span></div>
+    <div><b>Safeguards</b><span>Every tool has one reconciliation identity (record count, row count or total). If it fails, the tool blocks; it never lets the gap pass quietly.</span></div>
+    <div><b>Verification</b><span>Regression runs in a headless browser. Any change to wording or metric definitions is tested before delivery, with a backup, byte count and fingerprint comparison attached.</span></div>
+  </div>
+  <div class="why">Why HTML instead of scripts or plugins: team members have no admin rights, cannot install software, and should not have to configure an environment just to use a tool. A single file opens for anyone on double-click and works the same when copied to another machine. Technology choices follow the usage context. That is the one decision behind these six tools that never changed.</div>
+</section>
+
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+document.querySelectorAll('.tool .top').forEach(t=>t.addEventListener('click',()=>{t.parentElement.classList.toggle('open');postH();}));
+let allOpen=false;
+$('btnAll').onclick=()=>{allOpen=!allOpen;document.querySelectorAll('.tool').forEach(t=>t.classList.toggle('open',allOpen));$('btnAll').textContent=allOpen?'Collapse all':'Expand all';postH();};
+document.querySelectorAll('#seg button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#seg button').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('.tool').forEach(t=>t.classList.toggle('hide',b.dataset.f!=='all'&&t.dataset.k!==b.dataset.f));postH();});
+function postH(){if(window.parent===window)return;setTimeout(()=>{try{window.parent.postMessage({demoHeight:Math.max(document.body.scrollHeight,document.body.offsetHeight)},'*');}catch(e){}},80);}
+if(window.parent!==window){document.body.classList.add('embedded');addEventListener('load',postH);addEventListener('resize',postH);if(window.ResizeObserver)new ResizeObserver(postH).observe(document.body);setTimeout(postH,300);}
+</script>
+</body>
+</html>

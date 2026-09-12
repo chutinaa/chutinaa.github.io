@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Document Check · Live Demo</title>
+<style>
+:root{
+  --bg:#f4f3f0; --card:#fbfaf8; --ink:#1c1b19; --ink2:#6b6862; --rule:#dcd9d2;
+  --accent:#6a63a6; --accent-soft:#6a63a614;
+  --ok:#2f7a52; --ok-bg:#e6f2ea; --warn:#9a6a12; --warn-bg:#f8efd9; --bad:#a7423b; --bad-bg:#f6e3e0;
+  --sans:"Segoe UI","Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.7;min-height:100vh;display:flex;flex-direction:column}
+body.embedded{min-height:0;display:block}
+body.embedded .wrap{padding:22px 22px 26px}
+a{color:var(--accent)}
+.wrap{width:100%;max-width:1180px;margin:0 auto;padding:28px 28px 40px;flex:1}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+header small{display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink2)}
+header h1{font-size:22px;font-weight:500;letter-spacing:.01em}
+.badge{font-size:12px;color:var(--warn);background:var(--warn-bg);border:1px solid #ead9b0;border-radius:999px;padding:3px 12px;white-space:nowrap}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;font-size:13px;padding:7px 14px;border-radius:8px;border:1px solid var(--rule);background:var(--card);color:var(--ink);cursor:pointer;transition:border-color .15s,background .15s}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.primary:hover{background:#5a5494}
+button:disabled{opacity:.45;cursor:default}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:18px 20px}
+.grid>.card{display:flex;flex-direction:column}
+.grid>.card textarea{flex:1;min-height:170px}
+.grid>.card .hint{min-height:2.6em}
+.card h2{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);font-weight:500;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.card h2 .cnt{font-size:12px;letter-spacing:0;text-transform:none;color:var(--ok)}
+textarea{width:100%;min-height:210px;font:13px/1.6 Consolas,"Microsoft YaHei",monospace;padding:10px 12px;border:1px solid var(--rule);border-radius:10px;background:#fff;color:var(--ink);resize:vertical}
+textarea:focus{outline:none;border-color:var(--accent)}
+.hint{font-size:12px;color:var(--ink2);margin-top:8px}
+.files{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.file{flex:1;min-width:180px;border:1px solid var(--rule);border-radius:10px;padding:10px 12px;cursor:pointer;background:#fff;display:flex;gap:10px;align-items:center;transition:border-color .15s,box-shadow .15s}
+.file:hover{border-color:var(--accent)}
+.file.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.file .ic{width:34px;height:40px;border-radius:5px;display:grid;place-items:center;font-size:10px;font-weight:600;color:#fff;letter-spacing:.04em}
+.file .ic.docx{background:#5b74b8}.file .ic.pdf{background:#b8635b}
+.file b{display:block;font-weight:500;font-size:13px}
+.file span{font-size:11.5px;color:var(--ink2)}
+.src{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:2px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent);margin-bottom:8px}
+.src i{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block}
+.run{margin:20px 0 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.banner{display:none;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:12px}
+.banner.warn{display:block;background:var(--warn-bg);color:var(--warn);border:1px solid #ead9b0}
+.sum{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.chip{font-size:12.5px;padding:4px 12px;border-radius:999px;border:1px solid transparent}
+.chip.ok{background:var(--ok-bg);color:var(--ok)}.chip.warn{background:var(--warn-bg);color:var(--warn)}.chip.bad{background:var(--bad-bg);color:var(--bad)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-weight:500;color:var(--ink2);font-size:12px;padding:8px 10px;border-bottom:1px solid var(--rule)}
+td{padding:9px 10px;border-bottom:1px solid #eceae4;vertical-align:top}
+td.mono{font-family:Consolas,monospace;font-size:13px;letter-spacing:.02em}
+tr.ok td:first-child{box-shadow:inset 3px 0 0 var(--ok)}
+tr.warn td:first-child{box-shadow:inset 3px 0 0 var(--warn)}
+tr.bad td:first-child{box-shadow:inset 3px 0 0 var(--bad)}
+.tag{display:inline-block;font-size:12px;padding:1px 9px;border-radius:999px}
+.tag.ok{background:var(--ok-bg);color:var(--ok)}.tag.warn{background:var(--warn-bg);color:var(--warn)}.tag.bad{background:var(--bad-bg);color:var(--bad)}
+mark{background:#fde68a;color:inherit;padding:0 2px;border-radius:3px}
+.empty{color:var(--ink2);font-size:13px;padding:26px 0;text-align:center}
+.foot{margin-top:26px;font-size:12px;color:var(--ink2);border-top:1px solid var(--rule);padding-top:14px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.tech{margin-top:18px}
+.tech h2{margin-bottom:12px}
+.tech .row{display:grid;grid-template-columns:132px 1fr;gap:8px 16px;font-size:13px;padding:9px 0;border-top:1px solid #eceae4}
+.tech .row:first-of-type{border-top:0}
+.tech .row b{font-weight:500;color:var(--ink2)}
+.tech code{font-family:Consolas,monospace;font-size:12.5px;background:var(--accent-soft);color:var(--accent);padding:1px 5px;border-radius:4px}
+.tech .why{margin-top:14px;font-size:12.5px;color:var(--ink2);background:var(--accent-soft);border-radius:10px;padding:10px 14px;line-height:1.65}
+.embedded .badge{display:none}
+.wm{padding:14px 20px 18px;font-size:11.5px;letter-spacing:.06em;color:var(--ink2);opacity:.7;text-align:center}
+.note{font-size:12.5px;color:var(--ink2);background:var(--accent-soft);border-radius:10px;padding:10px 14px;margin-bottom:14px;line-height:1.6}
+/* explain mode + autoplay */
+.mod{position:relative;transition:box-shadow .2s,border-color .2s}
+body.explain .mod{cursor:help;border-color:var(--accent)}
+body.explain .mod:hover{box-shadow:0 0 0 3px var(--accent-soft)}
+button#btnExplain.on{background:var(--accent);border-color:var(--accent);color:#fff}
+#xTip{position:fixed;z-index:60;display:none;max-width:340px;background:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 12px 40px rgba(0,0,0,.18);font-size:13px;line-height:1.65;pointer-events:none}
+#xTip b{display:block;font-size:12px;color:var(--accent);letter-spacing:.1em;margin-bottom:4px}
+.mod.focus{box-shadow:0 0 0 3px var(--accent-soft),0 10px 30px rgba(106,99,166,.15);border-color:var(--accent)}
+.file.pulse,#btnRun.pulse,#btnReason.pulse{animation:pulse .9s ease-in-out 2}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(106,99,166,.0)}50%{box-shadow:0 0 0 6px rgba(106,99,166,.35)}}
+.empty small{display:block;margin-top:6px;color:var(--accent)}
+td.cp{cursor:copy;border-radius:4px;transition:background .15s}
+td.cp:hover{background:var(--accent-soft)}
+td.cp.done{background:var(--ok-bg)}
+.cpnote{font-size:12px;color:var(--ink2);margin-top:8px}
+#reasonBox{width:100%;min-height:150px;font:13px/1.7 var(--sans);padding:12px 14px;border:1px solid var(--rule);border-radius:10px;background:#fff;color:var(--ink);resize:vertical}
+#reasonBox:focus{outline:none;border-color:var(--accent)}
+.rbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.rbar .hint{margin:0}
+#cardReason{margin-top:18px;display:none}
+#cardReason.show{display:block}
+button.done{border-color:var(--ok);color:var(--ok);background:var(--ok-bg)}
+.explain-hint{display:none;font-size:12.5px;color:var(--accent);margin:-8px 0 14px}
+body.explain .explain-hint{display:block}
+@media(max-width:560px){
+  .wrap{padding:16px 13px 28px}
+  header h1{font-size:18px}
+  .card{padding:14px 13px;border-radius:10px}
+  .tech .row{grid-template-columns:1fr;gap:2px 0;padding:10px 0}
+  #res{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  #res table{min-width:560px}
+  textarea{min-height:150px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <small>AI Enablement Showcase · Live Demo</small>
+    <h1>文档字段核查 · 演示版</h1>
+  </div>
+  <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+    <span class="badge">演示版 · 全部虚构数据 · 非生产工具</span>
+    <div class="toolbar">
+      <button id="btnDemo" class="primary">加载示例</button>
+      <button id="btnExplain">流程说明</button>
+      <button id="btnReset">重置</button>
+    </div>
+  </div>
+</header>
+
+<div class="note">场景（虚构）：审核员要把「系统里登记的供应商编号」与「供应商提交的资质声明文件」逐条核对。演示保留生产工具的骨架：<b>提取 → 比对 → 按来源可信度判定 → 三色标注</b>。全部在浏览器本地完成，不调用任何外部服务。</div>
+
+<div class="explain-hint">流程说明模式：把鼠标移到任一模块上，查看它在流程中的作用。再点一次「流程说明」退出。</div>
+<div class="grid">
+  <section class="card mod" id="cardSys" data-x="sys">
+    <h2>① 系统记录（粘贴） <span class="cnt" id="sysCnt"></span></h2>
+    <textarea id="sysText" placeholder="从系统页面整段复制后粘贴到这里，例如：&#10;Suppliers (8)&#10;SP-7K2M9QX4  Nordwind Textile ..."></textarea>
+    <div class="hint">程序会自动从粘贴的文本里抠出编号，并用页面上的 "Suppliers (N)" 做数量对账，漏读多读立刻暴露。</div>
+  </section>
+
+  <section class="card mod" id="cardDoc" data-x="doc">
+    <h2>② 声明文件 <span class="cnt" id="docSrc"></span></h2>
+    <div class="files" id="files">
+      <div class="file" data-f="A"><div class="ic docx">DOCX</div><div><b>资质声明_Nordwind.docx</b><span>Word 原生文本 · 直读</span></div></div>
+      <div class="file" data-f="B"><div class="ic pdf">PDF</div><div><b>资质声明_Nordwind_扫描.pdf</b><span>扫描件 · 本地 OCR</span></div></div>
+    </div>
+    <textarea id="docText" placeholder="点击上方文件，或直接粘贴文件文本"></textarea>
+    <div class="hint" id="docHint">演示中不真的上传文件：<b>点文件卡片切换</b>，即模拟「解析后得到的文本」。可以手动改文本再核对。</div>
+  </section>
+</div>
+
+<div class="run mod" id="runBox" data-x="run" style="display:inline-flex;padding:6px 10px;border-radius:12px">
+  <button id="btnRun" class="primary" style="padding:9px 22px">核对</button>
+  <span class="hint" id="runHint" style="margin:0"></span>
+</div>
+
+<section class="card mod" id="cardRes" data-x="res">
+  <h2>③ 核对结果</h2>
+  <div class="banner" id="banner"></div>
+  <div class="sum" id="sum"></div>
+  <div id="res"><div class="empty">尚未核对<small>点右上角「加载示例」自动演示：粘贴系统记录 → 选择扫描件 → 核对 → 生成结论</small></div></div>
+  <div class="cpnote" id="cpNote" style="display:none">提示：点「系统编号」一列的任意编号，即复制到剪贴板，方便回系统逐条处理。</div>
+</section>
+
+<section class="card mod" id="cardReason" data-x="reason">
+  <h2>④ 审核结论 · 快速生成</h2>
+  <div class="rbar">
+    <button id="btnReason" class="primary">生成结论</button>
+    <button id="btnCopyReason">复制全文</button>
+    <span class="hint">按核对结果自动组句，可直接改；每次核对后重新生成。</span>
+  </div>
+  <textarea id="reasonBox" placeholder="点「生成结论」后出现，可编辑"></textarea>
+</section>
+
+<section class="card mod tech" id="cardTech" data-x="tech">
+  <h2>⑤ 技术实现 <span class="cnt" style="color:var(--ink2)">演示版 / 生产版分别说明</span></h2>
+  <div class="row"><b>本演示页</b><span>纯浏览器 JavaScript，单文件 HTML，零依赖、零网络请求。<b>演示不真的跑 OCR</b>：扫描件那一栏的文本是预置的虚构识别结果（含刻意保留的 O/0、I/1 误读），用来展示判定口径的差别。</span></div>
+  <div class="row"><b>运行环境</b><span>生产版：<code>Bun</code> 起本地 HTTP 服务 + 浏览器单页前端，双击 bat 启动，全部相对路径，可整包拷给同事。</span></div>
+  <div class="row"><b>Word 直读</b><span>自写 zip 中央目录解析 + <code>zlib.inflateRaw</code> 解压 <code>word/document.xml</code> 及全部页眉页脚，取原生字符，3–8 ms、零识别误差。不依赖 Office，也不走 PowerShell（避开编码坑）。</span></div>
+  <div class="row"><b>PDF / 扫描件</b><span>先用 <code>Scribe.js</code> 把 PDF 栅格化成 PNG（Windows 没有可脚本调用的 PDF 渲染器），<b>只用它栅格化，不用它 OCR</b>。</span></div>
+  <div class="row"><b>OCR 引擎</b><span><b>Windows 系统内置 OCR</b>（<code>Windows.Media.Ocr</code>），通过 <code>PowerShell + WinRT</code> 反射调用（<code>System.Runtime.WindowsRuntime</code> 拿 <code>AsTask</code> 转同步）。完全离线、免安装、不需要管理员权限、零成本，约 0.5–0.6 秒/页，已装 en-US 与 zh-Hans-CN 语言包。</span></div>
+  <div class="row"><b>比对算法</b><span>按行压掉全部非字母数字后做容错子串搜索（OCR 会往编号中间插逗号空格，<b>不能用正则切候选</b>）；只收 5 组字形真分不开的等价：<code>0/O/D</code> <code>1/I/L/T</code> <code>2/Z</code> <code>5/S</code> <code>8/B</code>，其余差异一律计分，宁可多几行「需人工」也不出一次假匹配。</span></div>
+  <div class="row"><b>回归基线</b><span>真实数据 86 个编号 → 76 匹配 / 8 需人工 / 2 未找到；5,000 个随机编号假阳性 0%。</span></div>
+  <div class="why"><b>为什么不用云端 LLM，也不用 Tesseract：</b>文档含机密信息，没有合规通道外发给外部模型，本地方案是唯一可行的选择；审核场景要求判定可复现、可审计，LLM 的非确定性输出天然不适合。Tesseract / Scribe.js 实测 4 页 53 秒，系统内置 OCR 只要 2.3 秒，且前者的 WASM + Worker 必须架 HTTP 服务器才能跑。</div>
+</section>
+
+<div class="foot">
+  <span>判定口径：Word 直读 = 文本可信，<b>只有逐字一致才算通过</b>，差一个字符归「需人工」；OCR = 机器读可能认错，O/0、I/1 等<b>常见混淆自动容错</b>，其他差异仍归「需人工」。</span>
+  <span>Demo · 单文件 HTML · 离线可用</span>
+</div>
+</div>
+
+<div id="xTip"><b id="xTitle"></b><div id="xBody"></div></div>
+
+<script>
+/*ENGINE*/
+const ID_RE=/\bSP-[A-Z0-9]{8}\b/g;
+const CONFUSE=[['0','O'],['1','I'],['1','L'],['5','S'],['8','B'],['2','Z']];
+function norm(s){return s.toUpperCase().replace(/[\s\-_]/g,'');}
+function extractIds(text){const m=text.toUpperCase().match(ID_RE)||[];return [...new Set(m)];}
+function expectedCount(text){const m=[...text.matchAll(/Suppliers?\s*\((\d+)\)/gi)];return m.length?Math.max(...m.map(x=>+x[1])):0;}
+function isSoft(a,b){return CONFUSE.some(p=>(p[0]===a&&p[1]===b)||(p[1]===a&&p[0]===b));}
+function diff(a,b){const d=[];for(let i=0;i<a.length;i++)if(a[i]!==b[i])d.push(i);return d;}
+// candidates: tokens in doc with the same shape (SP- + 8 chars, tolerant of OCR damage)
+function docTokens(text){return (text.toUpperCase().match(/SP[\-–—_ ]?[A-Z0-9]{8}\b/g)||[]).map(norm);}
+function matchOne(id,tokens,exactText){
+  const n=norm(id);
+  if(tokens.includes(n))return {status:'ok',found:n,note:'逐字一致'};
+  let best=null;
+  for(const t of tokens){if(t.length!==n.length)continue;const d=diff(n,t);if(d.length===1&&(!best||d.length<best.d.length))best={t,d};}
+  if(!best)return {status:'bad',found:'',note:'文件中未找到'};
+  const i=best.d[0],a=n[i],b=best.t[i],pos=i-1; // display position excludes 'SP'
+  if(!exactText&&isSoft(a,b))return {status:'ok',found:best.t,note:`第${pos}位 OCR 读成 ${b}（系统为 ${a}），属常见混淆，已容错`,pos:i};
+  if(exactText)return {status:'warn',found:best.t,note:`第${pos}位系统是 ${a}，文件里写的是 ${b}；Word 原文非 OCR，可能是填表时手打错了`,pos:i};
+  return {status:'warn',found:best.t,note:`第${pos}位系统是 ${a}，机器读到 ${b}，不属常见混淆，请人工核对原件`,pos:i};
+}
+function matchAll(ids,docText,exactText){const toks=docTokens(docText);return ids.map(id=>Object.assign({id},matchOne(id,toks,exactText)));}
+/*ENGINE END*/
+
+const DEMO_SYS=`Supplier Qualification · Batch #Q3-117
+Suppliers (8)
+SP-7K2M9QX4   Nordwind Textile Co.        Active
+SP-3HT0RV8N   Nordwind Textile Co.        Active
+SP-QZ51LM2C   Nordwind Textile Co.        Active
+SP-B8N4D7WK   Nordwind Textile Co.        Pending
+SP-X2O9PL6T   Nordwind Textile Co.        Active
+SP-M6R1SE3J   Nordwind Textile Co.        Active
+SP-A9F5G2HU   Nordwind Textile Co.        Active
+SP-D4C8VN1Y   Nordwind Textile Co.        Active`;
+
+const DEMO_DOC={
+A:{exact:true,label:'Word 原生文本 · 逐字判定',text:`供应商资质声明
+
+本公司（Nordwind Textile Co.）确认以下供应商编号所对应的业务均已完成合规备案，
+并对所提交资料的真实性负责。
+
+编号清单：
+1. SP-7K2M9QX4
+2. SP-3HT0RV8N
+3. SP-QZ51LM2C
+4. SP-B8N4D7WK
+5. SP-X2O9PL6T
+6. SP-M6R1SF3J
+7. SP-A9F5G2HU
+
+签章人：R. Halvorsen        日期：2026-08-14`},
+B:{exact:false,label:'扫描件 OCR · 容错判定',text:`供应商资质声明
+
+本公司 (Nordwind Textile Co.) 确认以下供应商编号所对应的业务均已完成合规备案,
+并对所提交资料的真实性负责。
+
+编号清单:
+1. SP-7K2M9QX4
+2. SP-3HTORV8N
+3. SP-QZ5ILM2C
+4. SP-B8N4D7WK
+5. SP-X2O9PL6T
+6. SP-M6R1SF3J
+7. SP-A9F5G2HU
+
+签章人: R. Halvorsen        日期: 2026-08-14`}};
+
+const $=id=>document.getElementById(id);
+let curFile=null;
+function setFile(k){curFile=k;document.querySelectorAll('.file').forEach(f=>f.classList.toggle('on',f.dataset.f===k));
+  if(k){$('docText').value=DEMO_DOC[k].text;$('docSrc').innerHTML='<span class="src"><i></i>'+DEMO_DOC[k].label+'</span>';}
+  else{$('docSrc').textContent='';}}
+function updateCnt(){const ids=extractIds($('sysText').value),exp=expectedCount($('sysText').value);
+  const el=$('sysCnt');if(!ids.length){el.textContent='';return;}
+  el.textContent=`抠出 ${ids.length} 个编号`+(exp?` · 页面标注 ${exp}`:'');el.style.color=(exp&&exp!==ids.length)?'var(--warn)':'var(--ok)';}
+function hl(found,pos){if(!found)return '<span style="color:var(--ink2)">—</span>';const s='SP-'+found.slice(2);
+  if(pos==null)return s;const p=pos+1;return s.slice(0,p)+'<mark>'+s[p]+'</mark>'+s.slice(p+1);}
+function run(){
+  const sys=$('sysText').value,doc=$('docText').value;
+  const ids=extractIds(sys);
+  if(!ids.length||!doc.trim()){$('runHint').textContent='请先填入系统记录并选择文件';return;}
+  $('runHint').textContent='';
+  const exact=curFile?DEMO_DOC[curFile].exact:true;
+  const exp=expectedCount(sys),b=$('banner');
+  if(exp&&exp!==ids.length){b.className='banner warn';b.textContent=`数量对不上：页面标注 ${exp} 家，程序只抠出 ${ids.length} 个编号。先别看下面的结果，请回系统重新整段复制。`;}
+  else{b.className='banner';b.textContent='';}
+  const rows=matchAll(ids,doc,exact);LAST={rows,exact,exp,ids,file:curFile};
+  const c={ok:0,warn:0,bad:0};rows.forEach(r=>c[r.status]++);
+  $('sum').innerHTML=`<span class="chip ok">通过 ${c.ok}</span><span class="chip warn">需人工确认 ${c.warn}</span><span class="chip bad">未找到 ${c.bad}</span><span class="chip" style="color:var(--ink2)">判定口径：${exact?'逐字一致':'OCR 容错'}</span>`;
+  const T={ok:'通过',warn:'需人工',bad:'未找到'};
+  $('res').innerHTML=`<table><thead><tr><th>系统编号</th><th>${exact?'文件里的写法（Word 原文）':'文件里的写法（OCR 结果）'}</th><th>判定</th><th>说明</th></tr></thead><tbody>`+
+    rows.map(r=>`<tr class="${r.status}"><td class="mono cp" data-cp="${r.id}" title="点击复制">${r.id}</td><td class="mono">${hl(r.found,r.pos)}</td><td><span class="tag ${r.status}">${T[r.status]}</span></td><td style="color:var(--ink2)">${r.note}</td></tr>`).join('')+'</tbody></table>';
+  $('cpNote').style.display='block';$('cardReason').classList.add('show');$('reasonBox').value='';$('btnCopyReason').classList.remove('done');$('btnCopyReason').textContent='复制全文';
+}
+let LAST=null;
+async function copyText(t){try{await navigator.clipboard.writeText(t);return true;}catch(e){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();return ok;}}
+$('res').addEventListener('click',async e=>{const td=e.target.closest('td.cp');if(!td)return;
+  if(await copyText(td.dataset.cp)){td.classList.add('done');const old=td.textContent;td.textContent=old+'  已复制';setTimeout(()=>{td.classList.remove('done');td.textContent=old;},900);}});
+function genReason(){if(!LAST){$('reasonBox').value='请先核对。';return;}
+  const {rows,exact,exp,ids,file}=LAST;const ok=rows.filter(r=>r.status==='ok'),warn=rows.filter(r=>r.status==='warn'),bad=rows.filter(r=>r.status==='bad');
+  const fname=file?document.querySelector('.file[data-f="'+file+'"] b').textContent:'所提交文件';
+  const src=exact?'Word 原生文本（未经 OCR，逐字判定）':'扫描件本地 OCR（常见混淆已容错）';
+  const L=[];
+  L.push(`【核对结论】系统记录 ${ids.length} 个编号${exp?`（页面标注 ${exp}，数量一致）`:''}，与「${fname}」逐条比对，来源：${src}。`);
+  L.push(`通过 ${ok.length} 个，需人工确认 ${warn.length} 个，文件中未找到 ${bad.length} 个。`);
+  if(warn.length){L.push('');L.push('需人工确认：');warn.forEach(r=>L.push(`- ${r.id}：文件中写作 SP-${r.found.slice(2)}，${r.note}。`));}
+  if(bad.length){L.push('');L.push('未找到：');bad.forEach(r=>L.push(`- ${r.id}：文件中无此编号，请供应商补充或说明。`));}
+  L.push('');
+  L.push(bad.length||warn.length?`处理建议：${bad.length?'退回补充缺失编号':''}${bad.length&&warn.length?'；':''}${warn.length?'需人工确认项请对照原件后再定':''}。其余 ${ok.length} 个可直接放行。`:'处理建议：全部一致，可直接放行。');
+  $('reasonBox').value=L.join('\n');$('btnCopyReason').classList.remove('done');$('btnCopyReason').textContent='复制全文';}
+$('btnReason').onclick=genReason;
+$('btnCopyReason').onclick=async()=>{const t=$('reasonBox').value;if(!t){genReason();}if(await copyText($('reasonBox').value)){const b=$('btnCopyReason');b.classList.add('done');b.textContent='已复制';setTimeout(()=>{b.classList.remove('done');b.textContent='复制全文';},1200);}};
+const EMPTY='<div class="empty">尚未核对<small>点右上角「加载示例」自动演示：粘贴系统记录 → 选择扫描件 → 核对 → 生成结论</small></div>';
+function reset(){$('sysText').value='';$('docText').value='';setFile(null);updateCnt();$('banner').className='banner';$('sum').innerHTML='';$('res').innerHTML=EMPTY;$('runHint').textContent='';LAST=null;$('cpNote').style.display='none';$('cardReason').classList.remove('show');$('reasonBox').value='';document.querySelectorAll('.mod').forEach(m=>m.classList.remove('focus'));}
+$('sysText').addEventListener('input',updateCnt);
+document.querySelectorAll('.file').forEach(f=>f.addEventListener('click',()=>setFile(f.dataset.f)));
+$('btnRun').onclick=run;$('btnReset').onclick=()=>{if(!playing)reset();};
+
+/* ---- autoplay demo ---- */
+let playing=false;
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+function focus(id){document.querySelectorAll('.mod').forEach(m=>m.classList.toggle('focus',m.id===id));$(id).scrollIntoView({block:'nearest',behavior:'smooth'});}
+async function typeInto(el,text,total){el.value='';const lines=text.split('\n');const per=Math.max(40,total/lines.length);
+  for(const ln of lines){el.value+= (el.value?'\n':'')+ln;el.scrollTop=el.scrollHeight;el.dispatchEvent(new Event('input'));await wait(per);}}
+async function playDemo(){
+  if(playing)return;playing=true;const bd=$('btnDemo');bd.disabled=true;
+  document.body.classList.remove('explain');$('btnExplain').classList.remove('on');$('xTip').style.display='none';
+  reset();
+  $('runHint').textContent='演示 1/3 · 把系统页面的记录粘贴进来';focus('cardSys');
+  await wait(500);await typeInto($('sysText'),DEMO_SYS,1400);await wait(600);
+  $('runHint').textContent='演示 2/3 · 选择供应商提交的扫描件（走本地 OCR）';focus('cardDoc');
+  const fb=document.querySelector('.file[data-f="B"]');fb.classList.add('pulse');await wait(900);fb.classList.remove('pulse');setFile('B');
+  await wait(900);
+  $('runHint').textContent='演示 3/3 · 核对';focus('runBox');$('btnRun').classList.add('pulse');await wait(1100);$('btnRun').classList.remove('pulse');
+  run();focus('cardRes');
+  await wait(1600);focus('cardReason');$('btnReason').classList.add('pulse');await wait(900);$('btnReason').classList.remove('pulse');genReason();
+  $('runHint').textContent='演示完成。结果表里点编号可一键复制；结论可直接改后复制。也可点 Word 卡片再核对一次，比较两种来源的口径。';
+  await wait(1500);$('cardReason').classList.remove('focus');
+  bd.disabled=false;bd.textContent='重新演示';playing=false;}
+$('btnDemo').onclick=playDemo;
+
+/* ---- explain mode ---- */
+const X={
+ sys:['① 系统记录','审核员从系统页面整段复制、直接粘贴，不用手工挑编号。程序自己按编号形状抠出来，并和页面标注的 "Suppliers (N)" 对账：抠出的个数与 N 对不上就亮黄条，先解决漏读再看结果。'],
+ doc:['② 声明文件','供应商提交的文件。Word 文件直接读原生文本，零识别误差；扫描件 / PDF 走本地 OCR。演示不真的上传，点卡片即模拟解析后的文本，右上角标出当前来源。'],
+ run:['核对','按来源选判定尺子：Word 来源只有逐字一致才通过；OCR 来源对 O/0、I/1 等常见混淆自动容错。同一份清单，来源不同，结论措辞也不同。'],
+ tech:['⑤ 技术实现','演示版是纯前端、不真的跑 OCR；生产版跑在本地 Bun 服务上，Word 走 zip 直读、PDF 走栅格化 + Windows 系统内置 OCR（Windows.Media.Ocr，PowerShell + WinRT 调用），全程离线。'],
+ reason:['④ 审核结论','按核对结果自动组句：数量对账、来源口径、通过/需人工/未找到明细、处理建议。审核员改两句就能贴进系统备注，不用从零写。'],
+ res:['③ 核对结果','三色标注：绿 = 通过；黄 = 需人工确认（差一个字符，并写明差在第几位、可能的原因）；红 = 文件里未找到。顶部一行汇总，可直接作为审核结论留档。']};
+function setExplain(on){document.body.classList.toggle('explain',on);$('btnExplain').classList.toggle('on',on);if(!on)$('xTip').style.display='none';}
+$('btnExplain').onclick=()=>{if(playing)return;setExplain(!document.body.classList.contains('explain'));};
+document.querySelectorAll('.mod').forEach(m=>{
+  m.addEventListener('mouseenter',()=>{if(!document.body.classList.contains('explain'))return;
+    const [t,b]=X[m.dataset.x];$('xTitle').textContent=t;$('xBody').textContent=b;const tip=$('xTip');tip.style.display='block';
+    const r=m.getBoundingClientRect(),tw=tip.offsetWidth,th=tip.offsetHeight;let x=r.right+14,y=r.top;
+    if(x+tw>innerWidth-12){x=Math.max(12,Math.min(innerWidth-tw-12,r.left));y=r.bottom+12;if(y+th>innerHeight-12)y=Math.max(12,r.top-th-12);}
+    if(y+th>innerHeight-12)y=Math.max(12,innerHeight-th-12);
+    tip.style.left=x+'px';tip.style.top=y+'px';});
+  m.addEventListener('mouseleave',()=>{$('xTip').style.display='none';});});
+addEventListener('keydown',e=>{if(e.key==='Escape')setExplain(false);});
+
+/* ---- embed support: report height to parent ---- */
+function postH(){if(window.parent===window)return;try{window.parent.postMessage({demoHeight:Math.max(document.body.scrollHeight,document.body.offsetHeight)},'*');}catch(e){}}
+if(window.parent!==window){document.body.classList.add('embedded');
+  addEventListener('load',postH);addEventListener('resize',postH);
+  ['btnDemo','btnReset','btnRun','btnReason','btnExplain'].forEach(id=>$(id).addEventListener('click',()=>{[120,900,4200,7000].forEach(t=>setTimeout(postH,t));}));
+  document.querySelectorAll('.file').forEach(f=>f.addEventListener('click',()=>setTimeout(postH,150)));
+  if(window.ResizeObserver)new ResizeObserver(postH).observe(document.body);
+  setTimeout(postH,300);}
+</script>
+</body>
+</html>

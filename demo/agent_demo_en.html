@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job-Search Agent · Interactive Demo</title>
+<style>
+:root{
+  --bg:#f4f3f0; --ink:#1c1b19; --ink2:#6b6862; --rule:#dcd9d2;
+  --accent:#6a63a6; --accent-soft:#6a63a614;
+  --mist1:#aab2f0; --mist2:#f0c2cc; --mist3:#b6e0d8; --mist4:#f3dcb4;
+  --sans:"Avenir Next","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body.embedded{padding:18px 16px 12px}
+.embedded .top .tag,.embedded .wm{display:none}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);margin:0;padding:22px 18px 14px}
+.top{max-width:880px;margin:0 auto 4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.top .tag{font-size:.6rem;letter-spacing:.26em;color:var(--accent);font-weight:700}
+.top h2{margin:0;font-size:.98rem;font-weight:700}
+.btns{max-width:880px;margin:10px auto;display:flex;gap:8px;flex-wrap:wrap}
+.btns button{font-family:var(--sans);font-size:.78rem;padding:8px 16px;border-radius:999px;border:1.4px solid var(--accent);background:#fff;color:var(--accent);cursor:pointer;font-weight:600}
+.btns button:hover{background:var(--accent-soft)}
+.btns button.on{background:var(--accent);color:#fff}
+.btns button.rst{border-color:var(--rule);color:var(--ink2);font-weight:400}
+.cap{max-width:880px;margin:0 auto 12px;min-height:38px;background:#fff;border:1px solid var(--rule);border-left:3px solid var(--accent);border-radius:6px;padding:9px 14px;font-size:.8rem;line-height:1.55;color:var(--ink2)}
+.cap b{color:var(--ink)}
+.cap .no{color:var(--accent);font-weight:700;margin-right:8px}
+.grid{max-width:880px;margin:0 auto;display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.card{border:1px solid var(--rule);border-radius:10px;padding:14px 16px 12px;background:#fdfdfc;transition:all .45s ease;position:relative;display:flex;flex-direction:column}
+.card .en{font-size:.58rem;letter-spacing:.2em;color:var(--accent);font-weight:700}
+.card h3{margin:4px 0 6px;font-size:.9rem}
+.card h3 small{font-weight:400;color:var(--ink2);font-size:.72rem;margin-left:6px}
+.card p{margin:0;font-size:.73rem;color:var(--ink2);line-height:1.6}
+.card .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:auto;padding-top:9px}
+.card .chips span{font-size:.68rem;padding:3px 9px;border-radius:999px;border:1px solid var(--rule);color:var(--ink2);transition:all .4s}
+.card .chips span.g1{background:#b6e0d833}.card .chips span.g2{background:#f0c2cc33}
+.card .chips span.g3{background:#f3dcb433}.card .chips span.g4{background:#aab2f033}
+.grid.play .card{opacity:.42;transform:scale(.985)}
+.grid.play .card.lit{opacity:1;transform:scale(1.015);border-color:var(--accent);box-shadow:0 6px 22px #6a63a622;background:#fff}
+.card.lit .en{color:var(--accent)}
+.card .chips span.hot{border-color:var(--accent);color:var(--accent);font-weight:700;background:var(--accent-soft)}
+.card svg{width:100%;max-width:340px;height:auto;display:block;margin:2px 0 5px}
+#c-ski svg,#c-kno svg{margin:auto}
+#c-ski .chips,#c-kno .chips{margin-top:0}
+svg text{font-family:var(--sans)}
+.ico .mv{transform-box:fill-box;transform-origin:center}
+@keyframes drop{0%{transform:translateY(-8px);opacity:0}45%{transform:translateY(0);opacity:1}100%{transform:translateY(0);opacity:1}}
+.wm{max-width:880px;margin:14px auto 0;text-align:center;font-size:.66rem;letter-spacing:.14em;color:var(--ink2)}
+@media(max-width:640px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="top"><span class="tag">LIVE DEMO</span><h2>Job-Search Agent · Pick a task, watch the system divide the work</h2></div>
+<div class="btns">
+  <button data-t="0">① Tailor my resume to a job</button>
+  <button data-t="1">② Evaluate a JD for fit</button>
+  <button data-t="2">③ Write a cover letter</button>
+  <button data-t="3">④ File a new experience / project</button>
+  <button data-t="4">⑤ Auto-upgrade its own skills</button>
+  <button class="rst" id="rst">Reset</button>
+</div>
+<div class="cap" id="cap">Pick any task above: the six components light up in their real calling order, and the caption walks through every step.</div>
+
+<div class="grid" id="grid">
+  <div class="card" id="c-ins"><span class="en">INSTRUCTIONS</span><h3>Instructions<small>52 rules · 11 groups</small></h3>
+    <p>The master prompt only says who owns what and what is off-limits; all detail sinks into the skill layer.</p>
+    <div class="chips"><span>Task routing</span><span>Truthfulness red line</span></div></div>
+  <div class="card" id="c-orc"><span class="en">ORCHESTRATION</span><h3>Orchestration<small>Routing pattern</small></h3>
+    <p>Each task is classified first; only one skill group wakes up, the rest never enter the context.</p>
+    <div class="chips"><span data-g="0">Intake</span><span data-g="1">Tailored output</span><span data-g="2">Evaluation</span><span data-g="3">Style gate</span></div></div>
+  <div class="card" id="c-ski"><span class="en">SKILLS</span><h3>Skills<small>11 custom skills · 4 groups</small></h3>
+    <svg viewBox="0 0 220 82">
+      <rect x="0" y="2" width="56" height="15" rx="7.5" fill="#aab2f0"/>
+      <text x="28" y="12.5" text-anchor="middle" font-size="8">Intake 4</text>
+      <line x1="56" y1="9.5" x2="64" y2="9.5" stroke="#dcd9d2" stroke-width="1"/>
+      <text x="68" y="12.5" font-size="7.2" fill="#6b6862">intake log · main merge · addenda · index</text>
+      <rect x="0" y="22" width="56" height="15" rx="7.5" fill="#aab2f080"/>
+      <text x="28" y="32.5" text-anchor="middle" font-size="8">Output 4</text>
+      <line x1="56" y1="29.5" x2="64" y2="29.5" stroke="#dcd9d2" stroke-width="1"/>
+      <text x="68" y="32.5" font-size="7.2" fill="#6b6862">resume · letter · interview · version</text>
+      <rect x="0" y="42" width="56" height="15" rx="7.5" fill="#aab2f040"/>
+      <text x="28" y="52.5" text-anchor="middle" font-size="8">Evaluate 2</text>
+      <line x1="56" y1="49.5" x2="64" y2="49.5" stroke="#dcd9d2" stroke-width="1"/>
+      <text x="68" y="52.5" font-size="7.2" fill="#6b6862">JD scoring · job dossiers</text>
+      <rect x="0" y="62" width="56" height="15" rx="7.5" fill="#6a63a6"/>
+      <text x="28" y="72.5" text-anchor="middle" font-size="8" fill="#fff">Gate 1</text>
+      <line x1="56" y1="69.5" x2="64" y2="69.5" stroke="#dcd9d2" stroke-width="1"/>
+      <text x="68" y="72.5" font-size="7.2" fill="#6b6862">style gate — all outbound copy</text>
+    </svg>
+    <p>One skill owns one task type; details like scoring criteria and stable preferences live inside the skill.</p>
+    <div class="chips"><span data-s="0">cv-customizer</span><span data-s="1">jd-fit-evaluator</span><span data-s="3">cover-letter</span><span data-s="2">intake</span></div></div>
+  <div class="card" id="c-kno"><span class="en">KNOWLEDGE</span><h3>Knowledge<small>retrieved by index</small></h3>
+    <svg viewBox="0 0 220 54">
+      <defs><marker id="a3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6a63a6"/></marker></defs>
+      <g transform="translate(0 -10)">
+      <rect x="0" y="14" width="44" height="28" rx="3" fill="#fff" stroke="#dcd9d2"/>
+      <text x="22" y="26" text-anchor="middle" font-size="8">Incoming</text>
+      <text x="22" y="37" text-anchor="middle" font-size="8">JDs</text>
+      <line x1="44" y1="28" x2="56" y2="28" stroke="#6a63a6" stroke-width="1.3" marker-end="url(#a3)"/>
+      <rect x="60" y="12" width="60" height="32" rx="4" fill="#aab2f033" stroke="#aab2f0"/>
+      <text x="90" y="25" text-anchor="middle" font-size="8" font-weight="600">Catalogue</text>
+      <text x="90" y="37" text-anchor="middle" font-size="7" fill="#6b6862">field · role type</text>
+      <line x1="120" y1="28" x2="132" y2="28" stroke="#6a63a6" stroke-width="1.3" marker-end="url(#a3)"/>
+      <g>
+        <rect x="138" y="12" width="14" height="34" rx="1.5" fill="#aab2f0"/>
+        <text transform="rotate(-90 145 29)" x="145" y="31.5" text-anchor="middle" font-size="6.5" fill="#1c1b19">AI 001</text>
+        <rect x="154" y="12" width="14" height="34" rx="1.5" fill="#aab2f066"/>
+        <text transform="rotate(-90 161 29)" x="161" y="31.5" text-anchor="middle" font-size="6.5" fill="#1c1b19">Data 002</text>
+        <g style="animation:drop 3s ease-out infinite;transform-box:fill-box;transform-origin:center">
+          <rect x="170" y="12" width="14" height="34" rx="1.5" fill="#f4b8b8" stroke="#c0605e" stroke-width=".8"/>
+          <text transform="rotate(-90 177 29)" x="177" y="31.5" text-anchor="middle" font-size="6.5" fill="#1c1b19">Fin 003</text>
+        </g>
+        <rect x="186" y="12" width="14" height="34" rx="1.5" fill="#6a63a6"/>
+        <text transform="rotate(-90 193 29)" x="193" y="31.5" text-anchor="middle" font-size="6.5" fill="#fff">PM 004</text>
+        <rect x="202" y="12" width="14" height="34" rx="1.5" fill="#aab2f066"/>
+        <text transform="rotate(-90 209 29)" x="209" y="31.5" text-anchor="middle" font-size="6.5" fill="#1c1b19">Ops 005</text>
+        <line x1="136" y1="48" x2="218" y2="48" stroke="#1c1b19" stroke-width="1.6"/>
+      </g>
+      <text x="177" y="60" text-anchor="middle" font-size="7.5" fill="#6b6862">filed · fetch by index</text>
+      </g>
+    </svg>
+    <p>Like a small library: evidence of experience plus real JDs collected over time (the benchmark at evaluation); the index that matters is keywords — field and role type.</p>
+    <div class="chips"><span>Keyword index</span><span>Job IDs</span><span>Three tiers</span></div></div>
+  <div class="card" id="c-mem"><span class="en">MEMORY</span><h3>Memory<small>personal facts</small></h3>
+    <p>Holds personal facts only — internships, projects, coursework; stable preferences live in skill rules, and per-job outputs never write back by default.</p>
+    <div class="chips"><span>Personal facts</span><span>No write-back ✕</span></div></div>
+  <div class="card" id="c-gua"><span class="en">GUARDRAILS</span><h3>Guardrails<small>2 gates</small></h3>
+    <p>Truthfulness red line: never fabricate, flag the unverified. Style gate: every outbound draft is checked for template tone and fake motivation.</p>
+    <div class="chips"><span>Truthfulness red line</span><span>Style gate</span></div></div>
+</div>
+<div class="wm">Demo · interaction re-created</div>
+
+<script>
+const SEQ = [
+ [ ["c-ins","<b>Task: tailor the resume for job #23.</b> The master prompt classifies it: a Tailored-output task."],
+   ["c-orc","<b>Only the Tailored-output group wakes up</b>; evaluation and intake rules stay out of the context.",{g:1}],
+   ["c-kno","<b>Pull experience:</b> recall relevant evidence via the keyword index, fetch the dossier by job ID — like a library call number."],
+   ["c-ski","<b>cv-customizer rewrites lightly</b>: readability may improve, ownership may never be invented.",{s:0}],
+   ["c-gua","<b>Every draft passes the style gate</b>: template tone, fake motivation, over-packaging."],
+   ["c-mem","<b>Delivered.</b> The tailored resume is stored as a per-job output — <b>no write-back</b> to the master file, nothing into memory."] ],
+ [ ["c-ins","<b>Task: evaluate a JD for fit.</b> Classified as an Evaluation task."],
+   ["c-orc","<b>Only the Evaluation group wakes up</b>; scoring rules live inside the skill, no other group's context is spent.",{g:2}],
+   ["c-mem","<b>Read memory:</b> personal facts — internships, projects, coursework."],
+   ["c-kno","<b>Pull job dossiers:</b> good JDs collected over time are the benchmark — the library knows what a good role looks like."],
+   ["c-ski","<b>jd-fit-evaluator scores against the benchmark</b>: criteria and stable preferences all live in the skill — company quality · title weight · fit · path risk · ROI.",{s:1}],
+   ["c-gua","<b>Delivered conservatively:</b> weak evidence is flagged unverified; the verdict is filed under its job ID only when you say so."] ],
+ [ ["c-ins","<b>Task: write a cover letter.</b> Classified as Tailored output, writing track."],
+   ["c-orc","<b>Only the Tailored-output group wakes up</b>; it first identifies the scene (formal letter / short application box / outreach).",{g:1}],
+   ["c-kno","<b>Knowledge supplies background only</b> — the voice does not come from here."],
+   ["c-ski","<b>cover-letter-customizer drafts</b>: built on real samples from the style case bank, not templates.",{s:3}],
+   ["c-gua","<b>Style gate sweeps for mines:</b> fake motivation, template tone, scene mismatch, over-polished — checked one by one."],
+   ["c-mem","<b>Delivered.</b> The letter is a per-job output — <b>no write-back</b> to the master file."] ],
+ [ ["c-ins","<b>Task: file a new experience / project.</b> Classified as an Intake task."],
+   ["c-orc","<b>Only the Intake group wakes up</b>; items are handled one at a time to avoid bulk mis-deletes.",{g:0}],
+   ["c-ski","<b>Logged lightly first</b> onto the intake list, never kneaded into one big document at once.",{s:2}],
+   ["c-kno","<b>Back-filled step by step:</b> structured into the master file, keyword index updated in sync."],
+   ["c-gua","<b>Conflict check:</b> anything clashing with existing records is handled conservatively and flagged for confirmation."],
+   ["c-mem","<b>Memory untouched:</b> details go to the knowledge master file; memory updates only when a basic fact changes (a new internship, a new course)."] ],
+ [ ["c-ins","<b>Scheduled online task: auto-upgrade the skills.</b> The system patrols the web on schedule and iterates itself."],
+   ["c-orc","<b>Open-source patrol:</b> searches for job-hunt tools and workflows worth borrowing."],
+   ["c-ski","<b>Evaluated, then folded in</b> to existing skills — capabilities are added, core logic never changes."],
+   ["c-kno","<b>Index kept in sync:</b> high-frequency job-hunt keywords merge into the keyword index."],
+   ["c-mem","<b>Big changes prompt first</b> and merge only after confirmation — the agent never rewrites itself on its own."] ]
+];
+const grid=document.getElementById("grid"), cap=document.getElementById("cap");
+let timers=[];
+function reset(){
+  timers.forEach(clearTimeout); timers=[];
+  grid.classList.remove("play");
+  document.querySelectorAll(".card").forEach(c=>c.classList.remove("lit"));
+  document.querySelectorAll(".chips span").forEach(s=>s.classList.remove("hot"));
+  document.querySelectorAll(".btns button").forEach(b=>b.classList.remove("on"));
+  cap.innerHTML="Pick any task above: the six components light up in their real calling order, and the caption walks through every step.";
+}
+function play(i,btn){
+  reset(); btn.classList.add("on"); grid.classList.add("play");
+  SEQ[i].forEach((st,k)=>{
+    timers.push(setTimeout(()=>{
+      document.querySelectorAll(".card").forEach(c=>c.classList.remove("lit"));
+      document.querySelectorAll(".chips span").forEach(s=>s.classList.remove("hot"));
+      document.getElementById(st[0]).classList.add("lit");
+      cap.innerHTML='<span class="no">'+(k+1)+'/'+SEQ[i].length+'</span>'+st[1];
+      const ex=st[2]||{};
+      if(ex.g!==undefined){const el=document.querySelector('[data-g="'+ex.g+'"]'); if(el)el.classList.add("hot");}
+      if(ex.s!==undefined){const el=document.querySelector('[data-s="'+ex.s+'"]'); if(el)el.classList.add("hot");}
+      if(k===SEQ[i].length-1){timers.push(setTimeout(()=>{grid.classList.remove("play");
+        document.querySelectorAll(".card").forEach(c=>c.classList.remove("lit"));},2200));}
+    }, 400+k*1500));
+  });
+}
+document.querySelectorAll(".btns button[data-t]").forEach(b=>b.addEventListener("click",()=>play(parseInt(b.dataset.t,10),b)));
+document.getElementById("rst").addEventListener("click",reset);
+function postH(){if(window.parent===window)return;setTimeout(()=>{try{window.parent.postMessage({demoHeight:Math.max(document.body.scrollHeight,document.body.offsetHeight)},'*');}catch(e){}},80);}
+if(window.parent!==window){document.body.classList.add('embedded');addEventListener('load',postH);addEventListener('resize',postH);if(window.ResizeObserver)new ResizeObserver(postH).observe(document.body);setTimeout(postH,300);}
+</script>
+</body>
+</html>

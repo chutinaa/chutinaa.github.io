@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>求职 Agent · 交互演示</title>
+<style>
+:root{
+  --bg:#f4f3f0; --ink:#1c1b19; --ink2:#6b6862; --rule:#dcd9d2;
+  --accent:#6a63a6; --accent-soft:#6a63a614;
+  --mist1:#aab2f0; --mist2:#f0c2cc; --mist3:#b6e0d8; --mist4:#f3dcb4;
+  --sans:"Avenir Next","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body.embedded{padding:18px 16px 12px}
+.embedded .top .tag,.embedded .wm{display:none}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);margin:0;padding:22px 18px 14px}
+.top{max-width:880px;margin:0 auto 4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.top .tag{font-size:.6rem;letter-spacing:.26em;color:var(--accent);font-weight:700}
+.top h2{margin:0;font-size:.98rem;font-weight:700}
+.btns{max-width:880px;margin:10px auto;display:flex;gap:8px;flex-wrap:wrap}
+.btns button{font-family:var(--sans);font-size:.78rem;padding:8px 16px;border-radius:999px;border:1.4px solid var(--accent);background:#fff;color:var(--accent);cursor:pointer;font-weight:600}
+.btns button:hover{background:var(--accent-soft)}
+.btns button.on{background:var(--accent);color:#fff}
+.btns button.rst{border-color:var(--rule);color:var(--ink2);font-weight:400}
+.cap{max-width:880px;margin:0 auto 12px;min-height:38px;background:#fff;border:1px solid var(--rule);border-left:3px solid var(--accent);border-radius:6px;padding:9px 14px;font-size:.8rem;line-height:1.55;color:var(--ink2)}
+.cap b{color:var(--ink)}
+.cap .no{color:var(--accent);font-weight:700;margin-right:8px}
+.grid{max-width:880px;margin:0 auto;display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.card{border:1px solid var(--rule);border-radius:10px;padding:14px 16px 12px;background:#fdfdfc;transition:all .45s ease;position:relative;display:flex;flex-direction:column}
+.card .en{font-size:.58rem;letter-spacing:.2em;color:var(--accent);font-weight:700}
+.card h3{margin:4px 0 6px;font-size:.9rem}
+.card h3 small{font-weight:400;color:var(--ink2);font-size:.72rem;margin-left:6px}
+.card p{margin:0;font-size:.73rem;color:var(--ink2);line-height:1.6}
+.card .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:auto;padding-top:9px}
+.card .chips span{font-size:.68rem;padding:3px 9px;border-radius:999px;border:1px solid var(--rule);color:var(--ink2);transition:all .4s}
+.card .chips span.g1{background:#b6e0d833}.card .chips span.g2{background:#f0c2cc33}
+.card .chips span.g3{background:#f3dcb433}.card .chips span.g4{background:#aab2f033}
+.grid.play .card{opacity:.42;transform:scale(.985)}
+.grid.play .card.lit{opacity:1;transform:scale(1.015);border-color:var(--accent);box-shadow:0 6px 22px #6a63a622;background:#fff}
+.card.lit .en{color:var(--accent)}
+.card .chips span.hot{border-color:var(--accent);color:var(--accent);font-weight:700;background:var(--accent-soft)}
+.card svg{width:100%;max-width:340px;height:auto;display:block;margin:2px 0 5px}
+#c-ski svg,#c-kno svg{margin:auto}
+#c-ski .chips,#c-kno .chips{margin-top:0}
+svg text{font-family:var(--sans)}
+.ico .mv{transform-box:fill-box;transform-origin:center}
+@keyframes drop{0%{transform:translateY(-8px);opacity:0}45%{transform:translateY(0);opacity:1}100%{transform:translateY(0);opacity:1}}
+.wm{max-width:880px;margin:14px auto 0;text-align:center;font-size:.66rem;letter-spacing:.14em;color:var(--ink2)}
+@media(max-width:640px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="top"><span class="tag">LIVE DEMO</span><h2>求职 Agent · 点一个任务，看系统怎么分工</h2></div>
+<div class="btns">
+  <button data-t="0">① 针对岗位定制简历</button>
+  <button data-t="1">② 评估一个 JD 适配度</button>
+  <button data-t="2">③ 写一封求职信</button>
+  <button data-t="3">④ 存入新经历 / 项目</button>
+  <button data-t="4">⑤ 自动更新升级 skill</button>
+  <button class="rst" id="rst">重置</button>
+</div>
+<div class="cap" id="cap">点上面任意一个任务，六个组件会按真实调用顺序逐个点亮，右下角字幕解释每一步。</div>
+
+<div class="grid" id="grid">
+  <div class="card" id="c-ins"><span class="en">INSTRUCTIONS</span><h3>指令<small>52 条 · 11 组</small></h3>
+    <p>主指令只写「归谁管、什么不能做」，细则全部下沉到技能层。</p>
+    <div class="chips"><span>任务分流</span><span>真实性红线</span></div></div>
+  <div class="card" id="c-orc"><span class="en">ORCHESTRATION</span><h3>调度<small>Routing 模式</small></h3>
+    <p>任务先分类，一次只唤醒一组技能，其余规则不进上下文。</p>
+    <div class="chips"><span data-g="0">入库整理</span><span data-g="1">定制产出</span><span data-g="2">决策评估</span><span data-g="3">风格守门</span></div></div>
+  <div class="card" id="c-ski"><span class="en">SKILLS</span><h3>技能<small>11 个定制 skill · 4 组</small></h3>
+    <svg viewBox="0 0 220 82">
+      <rect x="0" y="2" width="56" height="15" rx="7.5" fill="#aab2f0"/>
+      <text x="28" y="12.5" text-anchor="middle" font-size="8">入库整理 4</text>
+      <line x1="56" y1="9.5" x2="64" y2="9.5" stroke="#dcd9d2" stroke-width="1"/>
+      <text x="68" y="12.5" font-size="7.2" fill="#6b6862">材料登记 · 主档合并 · 补档合并 · 资源索引</text>
+      <rect x="0" y="22" width="56" height="15" rx="7.5" fill="#aab2f080"/>
+      <text x="28" y="32.5" text-anchor="middle" font-size="8">定制产出 4</text>
+      <line x1="56" y1="29.5" x2="64" y2="29.5" stroke="#dcd9d2" stroke-width="1"/>
+      <text x="68" y="32.5" font-size="7.2" fill="#6b6862">简历定制 · 求职信 · 面试准备 · 版本选择</text>
+      <rect x="0" y="42" width="56" height="15" rx="7.5" fill="#aab2f040"/>
+      <text x="28" y="52.5" text-anchor="middle" font-size="8">决策评估 2</text>
+      <line x1="56" y1="49.5" x2="64" y2="49.5" stroke="#dcd9d2" stroke-width="1"/>
+      <text x="68" y="52.5" font-size="7.2" fill="#6b6862">JD 评估 · 岗位档案</text>
+      <rect x="0" y="62" width="56" height="15" rx="7.5" fill="#6a63a6"/>
+      <text x="28" y="72.5" text-anchor="middle" font-size="8" fill="#fff">风格守门 1</text>
+      <line x1="56" y1="69.5" x2="64" y2="69.5" stroke="#dcd9d2" stroke-width="1"/>
+      <text x="68" y="72.5" font-size="7.2" fill="#6b6862">语言风格守门（对外产出统一过闸）</text>
+    </svg>
+    <p>一个 skill 只管一类任务，打分维度、稳定偏好这类细则都写在 skill 内。</p>
+    <div class="chips"><span data-s="0">cv-customizer</span><span data-s="1">jd-fit-evaluator</span><span data-s="3">cover-letter</span><span data-s="2">intake</span></div></div>
+  <div class="card" id="c-kno"><span class="en">KNOWLEDGE</span><h3>知识库<small>按索引调取</small></h3>
+    <svg viewBox="0 0 220 54">
+      <defs><marker id="a3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6a63a6"/></marker></defs>
+      <g transform="translate(0 -10)">
+      <rect x="0" y="14" width="44" height="28" rx="3" fill="#fff" stroke="#dcd9d2"/>
+      <text x="22" y="26" text-anchor="middle" font-size="8">新收集的</text>
+      <text x="22" y="37" text-anchor="middle" font-size="8">岗位 JD</text>
+      <line x1="44" y1="28" x2="56" y2="28" stroke="#6a63a6" stroke-width="1.3" marker-end="url(#a3)"/>
+      <rect x="60" y="12" width="60" height="32" rx="4" fill="#aab2f033" stroke="#aab2f0"/>
+      <text x="90" y="25" text-anchor="middle" font-size="8" font-weight="600">按关键词编目</text>
+      <text x="90" y="37" text-anchor="middle" font-size="7" fill="#6b6862">方向 · 岗位类型</text>
+      <line x1="120" y1="28" x2="132" y2="28" stroke="#6a63a6" stroke-width="1.3" marker-end="url(#a3)"/>
+      <g>
+        <rect x="138" y="12" width="14" height="34" rx="1.5" fill="#aab2f0"/>
+        <text transform="rotate(-90 145 29)" x="145" y="31.5" text-anchor="middle" font-size="6.5" fill="#1c1b19">AI 001</text>
+        <rect x="154" y="12" width="14" height="34" rx="1.5" fill="#aab2f066"/>
+        <text transform="rotate(-90 161 29)" x="161" y="31.5" text-anchor="middle" font-size="6.5" fill="#1c1b19">Data 002</text>
+        <g style="animation:drop 3s ease-out infinite;transform-box:fill-box;transform-origin:center">
+          <rect x="170" y="12" width="14" height="34" rx="1.5" fill="#f4b8b8" stroke="#c0605e" stroke-width=".8"/>
+          <text transform="rotate(-90 177 29)" x="177" y="31.5" text-anchor="middle" font-size="6.5" fill="#1c1b19">Fin 003</text>
+        </g>
+        <rect x="186" y="12" width="14" height="34" rx="1.5" fill="#6a63a6"/>
+        <text transform="rotate(-90 193 29)" x="193" y="31.5" text-anchor="middle" font-size="6.5" fill="#fff">PM 004</text>
+        <rect x="202" y="12" width="14" height="34" rx="1.5" fill="#aab2f066"/>
+        <text transform="rotate(-90 209 29)" x="209" y="31.5" text-anchor="middle" font-size="6.5" fill="#1c1b19">Ops 005</text>
+        <line x1="136" y1="48" x2="218" y2="48" stroke="#1c1b19" stroke-width="1.6"/>
+      </g>
+      <text x="177" y="60" text-anchor="middle" font-size="7.5" fill="#6b6862">入架存档 · 按索引取信息</text>
+      </g>
+    </svg>
+    <p>像一座小图书馆：经历证据 + 真实收集的岗位 JD 存档（评估时当对比基准）；重要的索引是关键词——方向、岗位类型。</p>
+    <div class="chips"><span>关键词索引</span><span>岗位编号</span><span>三级分层</span></div></div>
+  <div class="card" id="c-mem"><span class="en">MEMORY</span><h3>记忆<small>个人事实</small></h3>
+    <p>只放个人事实——实习、项目、课程这类不变的背景；稳定偏好写在 skill 规则里，单岗位产物默认不回写。</p>
+    <div class="chips"><span>个人事实</span><span>不回写 ✕</span></div></div>
+  <div class="card" id="c-gua"><span class="en">GUARDRAILS</span><h3>守门<small>2 道</small></h3>
+    <p>真实性红线：不虚构、未验证要标注；风格守门：对外产出出稿必查模板腔、假动机。</p>
+    <div class="chips"><span>真实性红线</span><span>风格守门</span></div></div>
+</div>
+<div class="wm">演示版 · 交互重现</div>
+
+<script>
+const SEQ = [
+ [ ["c-ins","<b>任务：针对岗位 #23 定制简历。</b>主指令判断：「定制产出」类任务。"],
+   ["c-orc","<b>只唤醒定制产出组</b>，评估、入库的细则规则不进上下文。",{g:1}],
+   ["c-kno","<b>调经历：</b>按关键词索引召回相关经历，按岗位编号取档案——像图书馆按索书号取书。"],
+   ["c-ski","<b>cv-customizer 轻量改写</b>：允许改善可读性，不允许虚构 ownership。",{s:0}],
+   ["c-gua","<b>出稿必过风格守门</b>：排查模板腔、假动机、过度包装。"],
+   ["c-mem","<b>交付。</b>定制简历存为单岗位产物，<b>不回写</b>经历主档，也不进记忆。"] ],
+ [ ["c-ins","<b>任务：评估一个 JD 适配度。</b>主指令判断：「决策评估」类任务。"],
+   ["c-orc","<b>只唤醒决策评估组</b>，打分规则都在 skill 内，不占别组上下文。",{g:2}],
+   ["c-mem","<b>读记忆：</b>个人事实背景——实习、项目、课程。"],
+   ["c-kno","<b>调岗位档案：</b>平时收藏的高质量 JD 是对比基准——好岗位长什么样，库里有数。"],
+   ["c-ski","<b>jd-fit-evaluator 对照基准打分</b>：打分维度和稳定偏好都写在 skill 里——公司质量 · title 含金量 · 适配度 · 路径风险 · ROI。",{s:1}],
+   ["c-gua","<b>保守判断交付：</b>证据不足标「未验证」；评估结论你说「存」才按岗位编号进档案。"] ],
+ [ ["c-ins","<b>任务：写一封求职信。</b>主指令判断：「定制产出」类任务，写作链路。"],
+   ["c-orc","<b>只唤醒定制产出组</b>，先识别输出场景（正式信 / 短申请框 / outreach）。",{g:1}],
+   ["c-kno","<b>调用知识库只取经历背景</b>——语言风格不从这里来。"],
+   ["c-ski","<b>cover-letter-customizer 起草</b>：套的是风格案例库里的真实语料，不是模板。",{s:3}],
+   ["c-gua","<b>风格守门排雷：</b>假动机、模板腔、场景失配、过度 polished，逐项查。"],
+   ["c-mem","<b>交付。</b>这封信是单岗位产物，<b>不回写</b>主档。"] ],
+ [ ["c-ins","<b>任务：存入一段新经历 / 新项目。</b>主指令判断：「入库整理」类任务。"],
+   ["c-orc","<b>只唤醒入库整理组</b>，按单份/单组处理，避免批量误删。",{g:0}],
+   ["c-ski","<b>先轻量登记</b>进 intake 清单，不一次揉成大文档。",{s:2}],
+   ["c-kno","<b>逐步回填：</b>结构化进主档，同步更新关键词索引。"],
+   ["c-gua","<b>冲突检查：</b>与已有经历冲突的信息保守处理，提示确认。"],
+   ["c-mem","<b>记忆不动：</b>经历细节进知识库主档；只有基本事实变了（比如新实习、新课程），才更新记忆。"] ],
+ [ ["c-ins","<b>定时联网任务：自动更新升级 skill。</b>系统定期上网巡检，自动迭代。"],
+   ["c-orc","<b>进入开源巡检流程</b>：搜索值得借鉴的开源求职工具与工作流。"],
+   ["c-ski","<b>评估后适当补充</b>进现有 skill——只补充能力，不改底层逻辑。"],
+   ["c-kno","<b>索引同步更新：</b>高频出现的求职关键词并入关键词索引。"],
+   ["c-mem","<b>大改动会先提示</b>，确认后才整合——agent 不自作主张改自己。"] ]
+];
+const grid=document.getElementById("grid"), cap=document.getElementById("cap");
+let timers=[];
+function reset(){
+  timers.forEach(clearTimeout); timers=[];
+  grid.classList.remove("play");
+  document.querySelectorAll(".card").forEach(c=>c.classList.remove("lit"));
+  document.querySelectorAll(".chips span").forEach(s=>s.classList.remove("hot"));
+  document.querySelectorAll(".btns button").forEach(b=>b.classList.remove("on"));
+  cap.innerHTML="点上面任意一个任务，六个组件会按真实调用顺序逐个点亮，右下角字幕解释每一步。";
+}
+function play(i,btn){
+  reset(); btn.classList.add("on"); grid.classList.add("play");
+  SEQ[i].forEach((st,k)=>{
+    timers.push(setTimeout(()=>{
+      document.querySelectorAll(".card").forEach(c=>c.classList.remove("lit"));
+      document.querySelectorAll(".chips span").forEach(s=>s.classList.remove("hot"));
+      document.getElementById(st[0]).classList.add("lit");
+      cap.innerHTML='<span class="no">'+(k+1)+'/'+SEQ[i].length+'</span>'+st[1];
+      const ex=st[2]||{};
+      if(ex.g!==undefined){const el=document.querySelector('[data-g="'+ex.g+'"]'); if(el)el.classList.add("hot");}
+      if(ex.s!==undefined){const el=document.querySelector('[data-s="'+ex.s+'"]'); if(el)el.classList.add("hot");}
+      if(k===SEQ[i].length-1){timers.push(setTimeout(()=>{grid.classList.remove("play");
+        document.querySelectorAll(".card").forEach(c=>c.classList.remove("lit"));},2200));}
+    }, 400+k*1500));
+  });
+}
+document.querySelectorAll(".btns button[data-t]").forEach(b=>b.addEventListener("click",()=>play(parseInt(b.dataset.t,10),b)));
+document.getElementById("rst").addEventListener("click",reset);
+function postH(){if(window.parent===window)return;setTimeout(()=>{try{window.parent.postMessage({demoHeight:Math.max(document.body.scrollHeight,document.body.offsetHeight)},'*');}catch(e){}},80);}
+if(window.parent!==window){document.body.classList.add('embedded');addEventListener('load',postH);addEventListener('resize',postH);if(window.ResizeObserver)new ResizeObserver(postH).observe(document.body);setTimeout(postH,300);}
+</script>
+</body>
+</html>

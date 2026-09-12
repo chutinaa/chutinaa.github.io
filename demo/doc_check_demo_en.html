@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Document Check · Live Demo</title>
+<style>
+:root{
+  --bg:#f4f3f0; --card:#fbfaf8; --ink:#1c1b19; --ink2:#6b6862; --rule:#dcd9d2;
+  --accent:#6a63a6; --accent-soft:#6a63a614;
+  --ok:#2f7a52; --ok-bg:#e6f2ea; --warn:#9a6a12; --warn-bg:#f8efd9; --bad:#a7423b; --bad-bg:#f6e3e0;
+  --sans:"Segoe UI","Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.7;min-height:100vh;display:flex;flex-direction:column}
+body.embedded{min-height:0;display:block}
+body.embedded .wrap{padding:22px 22px 26px}
+a{color:var(--accent)}
+.wrap{width:100%;max-width:1180px;margin:0 auto;padding:28px 28px 40px;flex:1}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+header small{display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink2)}
+header h1{font-size:22px;font-weight:500;letter-spacing:.01em}
+.badge{font-size:12px;color:var(--warn);background:var(--warn-bg);border:1px solid #ead9b0;border-radius:999px;padding:3px 12px;white-space:nowrap}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;font-size:13px;padding:7px 14px;border-radius:8px;border:1px solid var(--rule);background:var(--card);color:var(--ink);cursor:pointer;transition:border-color .15s,background .15s}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.primary:hover{background:#5a5494}
+button:disabled{opacity:.45;cursor:default}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:18px 20px}
+.grid>.card{display:flex;flex-direction:column}
+.grid>.card textarea{flex:1;min-height:170px}
+.grid>.card .hint{min-height:2.6em}
+.card h2{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);font-weight:500;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.card h2 .cnt{font-size:12px;letter-spacing:0;text-transform:none;color:var(--ok)}
+textarea{width:100%;min-height:210px;font:13px/1.6 Consolas,"Microsoft YaHei",monospace;padding:10px 12px;border:1px solid var(--rule);border-radius:10px;background:#fff;color:var(--ink);resize:vertical}
+textarea:focus{outline:none;border-color:var(--accent)}
+.hint{font-size:12px;color:var(--ink2);margin-top:8px}
+.files{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.file{flex:1;min-width:180px;border:1px solid var(--rule);border-radius:10px;padding:10px 12px;cursor:pointer;background:#fff;display:flex;gap:10px;align-items:center;transition:border-color .15s,box-shadow .15s}
+.file:hover{border-color:var(--accent)}
+.file.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.file .ic{width:34px;height:40px;border-radius:5px;display:grid;place-items:center;font-size:10px;font-weight:600;color:#fff;letter-spacing:.04em}
+.file .ic.docx{background:#5b74b8}.file .ic.pdf{background:#b8635b}
+.file b{display:block;font-weight:500;font-size:13px}
+.file span{font-size:11.5px;color:var(--ink2)}
+.src{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:2px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent);margin-bottom:8px}
+.src i{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block}
+.run{margin:20px 0 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.banner{display:none;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:12px}
+.banner.warn{display:block;background:var(--warn-bg);color:var(--warn);border:1px solid #ead9b0}
+.sum{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.chip{font-size:12.5px;padding:4px 12px;border-radius:999px;border:1px solid transparent}
+.chip.ok{background:var(--ok-bg);color:var(--ok)}.chip.warn{background:var(--warn-bg);color:var(--warn)}.chip.bad{background:var(--bad-bg);color:var(--bad)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-weight:500;color:var(--ink2);font-size:12px;padding:8px 10px;border-bottom:1px solid var(--rule)}
+td{padding:9px 10px;border-bottom:1px solid #eceae4;vertical-align:top}
+td.mono{font-family:Consolas,monospace;font-size:13px;letter-spacing:.02em}
+tr.ok td:first-child{box-shadow:inset 3px 0 0 var(--ok)}
+tr.warn td:first-child{box-shadow:inset 3px 0 0 var(--warn)}
+tr.bad td:first-child{box-shadow:inset 3px 0 0 var(--bad)}
+.tag{display:inline-block;font-size:12px;padding:1px 9px;border-radius:999px}
+.tag.ok{background:var(--ok-bg);color:var(--ok)}.tag.warn{background:var(--warn-bg);color:var(--warn)}.tag.bad{background:var(--bad-bg);color:var(--bad)}
+mark{background:#fde68a;color:inherit;padding:0 2px;border-radius:3px}
+.empty{color:var(--ink2);font-size:13px;padding:26px 0;text-align:center}
+.foot{margin-top:26px;font-size:12px;color:var(--ink2);border-top:1px solid var(--rule);padding-top:14px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.tech{margin-top:18px}
+.tech h2{margin-bottom:12px}
+.tech .row{display:grid;grid-template-columns:132px 1fr;gap:8px 16px;font-size:13px;padding:9px 0;border-top:1px solid #eceae4}
+.tech .row:first-of-type{border-top:0}
+.tech .row b{font-weight:500;color:var(--ink2)}
+.tech code{font-family:Consolas,monospace;font-size:12.5px;background:var(--accent-soft);color:var(--accent);padding:1px 5px;border-radius:4px}
+.tech .why{margin-top:14px;font-size:12.5px;color:var(--ink2);background:var(--accent-soft);border-radius:10px;padding:10px 14px;line-height:1.65}
+.embedded .badge{display:none}
+.wm{padding:14px 20px 18px;font-size:11.5px;letter-spacing:.06em;color:var(--ink2);opacity:.7;text-align:center}
+.note{font-size:12.5px;color:var(--ink2);background:var(--accent-soft);border-radius:10px;padding:10px 14px;margin-bottom:14px;line-height:1.6}
+/* explain mode + autoplay */
+.mod{position:relative;transition:box-shadow .2s,border-color .2s}
+body.explain .mod{cursor:help;border-color:var(--accent)}
+body.explain .mod:hover{box-shadow:0 0 0 3px var(--accent-soft)}
+button#btnExplain.on{background:var(--accent);border-color:var(--accent);color:#fff}
+#xTip{position:fixed;z-index:60;display:none;max-width:340px;background:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 12px 40px rgba(0,0,0,.18);font-size:13px;line-height:1.65;pointer-events:none}
+#xTip b{display:block;font-size:12px;color:var(--accent);letter-spacing:.1em;margin-bottom:4px}
+.mod.focus{box-shadow:0 0 0 3px var(--accent-soft),0 10px 30px rgba(106,99,166,.15);border-color:var(--accent)}
+.file.pulse,#btnRun.pulse,#btnReason.pulse{animation:pulse .9s ease-in-out 2}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(106,99,166,.0)}50%{box-shadow:0 0 0 6px rgba(106,99,166,.35)}}
+.empty small{display:block;margin-top:6px;color:var(--accent)}
+td.cp{cursor:copy;border-radius:4px;transition:background .15s}
+td.cp:hover{background:var(--accent-soft)}
+td.cp.done{background:var(--ok-bg)}
+.cpnote{font-size:12px;color:var(--ink2);margin-top:8px}
+#reasonBox{width:100%;min-height:150px;font:13px/1.7 var(--sans);padding:12px 14px;border:1px solid var(--rule);border-radius:10px;background:#fff;color:var(--ink);resize:vertical}
+#reasonBox:focus{outline:none;border-color:var(--accent)}
+.rbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.rbar .hint{margin:0}
+#cardReason{margin-top:18px;display:none}
+#cardReason.show{display:block}
+button.done{border-color:var(--ok);color:var(--ok);background:var(--ok-bg)}
+.explain-hint{display:none;font-size:12.5px;color:var(--accent);margin:-8px 0 14px}
+body.explain .explain-hint{display:block}
+@media(max-width:560px){
+  .wrap{padding:16px 13px 28px}
+  header h1{font-size:18px}
+  .card{padding:14px 13px;border-radius:10px}
+  .tech .row{grid-template-columns:1fr;gap:2px 0;padding:10px 0}
+  #res{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  #res table{min-width:560px}
+  textarea{min-height:150px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <small>AI Enablement Showcase · Live Demo</small>
+    <h1>Document Field Check · Demo</h1>
+  </div>
+  <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+    <span class="badge">Demo · all data fictitious · not the production tool</span>
+    <div class="toolbar">
+      <button id="btnDemo" class="primary">Load sample</button>
+      <button id="btnExplain">How it works</button>
+      <button id="btnReset">Reset</button>
+    </div>
+  </div>
+</header>
+
+<div class="note">Scenario (fictitious): a reviewer checks the supplier IDs registered in the system against the qualification declaration the supplier submitted, one by one. The demo keeps the production tool's skeleton: <b>extract → compare → judge by source credibility → three-colour flags</b>. Everything runs locally in the browser; no external service is called.</div>
+
+<div class="explain-hint">How-it-works mode: hover over any module to see its role in the pipeline. Click "How it works" again to exit.</div>
+<div class="grid">
+  <section class="card mod" id="cardSys" data-x="sys">
+    <h2>① System records (paste) <span class="cnt" id="sysCnt"></span></h2>
+    <textarea id="sysText" placeholder="Copy the whole block from the system page and paste it here, e.g.:&#10;Suppliers (8)&#10;SP-7K2M9QX4  Nordwind Textile ..."></textarea>
+    <div class="hint">The tool pulls the IDs out of the pasted text and reconciles the count against the page's "Suppliers (N)" — a missed or extra read shows up at once.</div>
+  </section>
+
+  <section class="card mod" id="cardDoc" data-x="doc">
+    <h2>② Declaration file <span class="cnt" id="docSrc"></span></h2>
+    <div class="files" id="files">
+      <div class="file" data-f="A"><div class="ic docx">DOCX</div><div><b>Declaration_Nordwind.docx</b><span>native Word text · direct read</span></div></div>
+      <div class="file" data-f="B"><div class="ic pdf">PDF</div><div><b>Declaration_Nordwind_scan.pdf</b><span>scanned copy · local OCR</span></div></div>
+    </div>
+    <textarea id="docText" placeholder="Click a file above, or paste the document text"></textarea>
+    <div class="hint" id="docHint">No real upload in the demo: <b>click a file card</b> to simulate the text as parsed. Edit it and re-check if you like.</div>
+  </section>
+</div>
+
+<div class="run mod" id="runBox" data-x="run" style="display:inline-flex;padding:6px 10px;border-radius:12px">
+  <button id="btnRun" class="primary" style="padding:9px 22px">Check</button>
+  <span class="hint" id="runHint" style="margin:0"></span>
+</div>
+
+<section class="card mod" id="cardRes" data-x="res">
+  <h2>③ Results</h2>
+  <div class="banner" id="banner"></div>
+  <div class="sum" id="sum"></div>
+  <div id="res"><div class="empty">Nothing checked yet<small>Click "Load sample" (top right) for the auto demo: paste system records → pick the scan → check → generate the verdict</small></div></div>
+  <div class="cpnote" id="cpNote" style="display:none">Tip: click any ID in the System ID column to copy it — handy when working through them back in the system.</div>
+</section>
+
+<section class="card mod" id="cardReason" data-x="reason">
+  <h2>④ Review verdict · quick draft</h2>
+  <div class="rbar">
+    <button id="btnReason" class="primary">Generate verdict</button>
+    <button id="btnCopyReason">Copy all</button>
+    <span class="hint">Sentences are assembled from the results; edit freely, regenerate after each check.</span>
+  </div>
+  <textarea id="reasonBox" placeholder="Appears after Generate verdict; editable"></textarea>
+</section>
+
+<section class="card mod tech" id="cardTech" data-x="tech">
+  <h2>⑤ How it is built <span class="cnt" style="color:var(--ink2)">demo vs production, separately</span></h2>
+  <div class="row"><b>This demo page</b><span>Pure in-browser JavaScript, single-file HTML, zero dependencies, zero network requests. <b>The demo does not really run OCR</b>: the scan's text is a preset fictitious recognition result (with O/0 and I/1 misreads left in on purpose) to show how the judging rule shifts with the source.</span></div>
+  <div class="row"><b>Runtime</b><span>Production: a local HTTP server on <code>Bun</code> plus a single-page front end; starts from a double-clicked .bat, all relative paths, the whole folder copies to a colleague as-is.</span></div>
+  <div class="row"><b>Word direct read</b><span>Hand-written zip central-directory parsing + <code>zlib.inflateRaw</code> to unpack <code>word/document.xml</code> and every header and footer, taking native characters: 3–8 ms, zero recognition error. No Office dependency, no PowerShell (dodging its encoding traps).</span></div>
+  <div class="row"><b>PDF / scans</b><span><code>Scribe.js</code> first rasterises the PDF to PNG (Windows ships no scriptable PDF renderer); <b>it rasterises only, it never OCRs</b>.</span></div>
+  <div class="row"><b>OCR engine</b><span><b>Windows built-in OCR</b> (<code>Windows.Media.Ocr</code>), invoked via <code>PowerShell + WinRT</code> reflection (<code>System.Runtime.WindowsRuntime</code> supplies <code>AsTask</code> for a synchronous call). Fully offline, nothing to install, no admin rights, zero cost, about 0.5–0.6 s per page, with the en-US and zh-Hans-CN language packs installed.</span></div>
+  <div class="row"><b>Matching</b><span>Each line is stripped of all non-alphanumerics, then a tolerant substring search (OCR drops commas and spaces into the middle of IDs, <b>so regex candidate-splitting is out</b>); only 5 genuinely inseparable glyph groups count as equal: <code>0/O/D</code> <code>1/I/L/T</code> <code>2/Z</code> <code>5/S</code> <code>8/B</code>. Every other difference scores — better a few extra needs-review rows than a single false match.</span></div>
+  <div class="row"><b>Regression baseline</b><span>Real data, 86 IDs → 76 matched / 8 needs review / 2 not found; 0% false positives on 5,000 random IDs.</span></div>
+  <div class="why"><b>Why no cloud LLM, and no Tesseract:</b> the documents hold confidential information and there is no compliant channel to send them to an external model, so local is the only viable option; a review scenario demands reproducible, auditable judgments — non-deterministic LLM output is inherently unfit. Measured: Tesseract / Scribe.js took 53 s for 4 pages, the built-in OCR 2.3 s, and the former's WASM + Worker only runs behind an HTTP server.</div>
+</section>
+
+<div class="foot">
+  <span>Judging rule: Word direct read = trusted text, <b>only an exact character match passes</b>; one character off goes to needs-review. OCR = the machine may misread, so <b>common confusions (O/0, I/1…) are auto-tolerated</b>; every other difference still goes to needs-review.</span>
+  <span>Demo · single-file HTML · works offline</span>
+</div>
+</div>
+
+<div id="xTip"><b id="xTitle"></b><div id="xBody"></div></div>
+
+<script>
+/*ENGINE*/
+const ID_RE=/\bSP-[A-Z0-9]{8}\b/g;
+const CONFUSE=[['0','O'],['1','I'],['1','L'],['5','S'],['8','B'],['2','Z']];
+function norm(s){return s.toUpperCase().replace(/[\s\-_]/g,'');}
+function extractIds(text){const m=text.toUpperCase().match(ID_RE)||[];return [...new Set(m)];}
+function expectedCount(text){const m=[...text.matchAll(/Suppliers?\s*\((\d+)\)/gi)];return m.length?Math.max(...m.map(x=>+x[1])):0;}
+function isSoft(a,b){return CONFUSE.some(p=>(p[0]===a&&p[1]===b)||(p[1]===a&&p[0]===b));}
+function diff(a,b){const d=[];for(let i=0;i<a.length;i++)if(a[i]!==b[i])d.push(i);return d;}
+// candidates: tokens in doc with the same shape (SP- + 8 chars, tolerant of OCR damage)
+function docTokens(text){return (text.toUpperCase().match(/SP[\-–—_ ]?[A-Z0-9]{8}\b/g)||[]).map(norm);}
+function matchOne(id,tokens,exactText){
+  const n=norm(id);
+  if(tokens.includes(n))return {status:'ok',found:n,note:'exact match'};
+  let best=null;
+  for(const t of tokens){if(t.length!==n.length)continue;const d=diff(n,t);if(d.length===1&&(!best||d.length<best.d.length))best={t,d};}
+  if(!best)return {status:'bad',found:'',note:'not found in the file'};
+  const i=best.d[0],a=n[i],b=best.t[i],pos=i-1; // display position excludes 'SP'
+  if(!exactText&&isSoft(a,b))return {status:'ok',found:best.t,note:`pos ${pos}: OCR read ${b} (system has ${a}) — a common confusion, tolerated`,pos:i};
+  if(exactText)return {status:'warn',found:best.t,note:`pos ${pos}: system has ${a}, the file says ${b}; native Word text, not OCR — likely a typo when the form was filled in`,pos:i};
+  return {status:'warn',found:best.t,note:`pos ${pos}: system has ${a}, the machine read ${b} — not a common confusion, check the original manually`,pos:i};
+}
+function matchAll(ids,docText,exactText){const toks=docTokens(docText);return ids.map(id=>Object.assign({id},matchOne(id,toks,exactText)));}
+/*ENGINE END*/
+
+const DEMO_SYS=`Supplier Qualification · Batch #Q3-117
+Suppliers (8)
+SP-7K2M9QX4   Nordwind Textile Co.        Active
+SP-3HT0RV8N   Nordwind Textile Co.        Active
+SP-QZ51LM2C   Nordwind Textile Co.        Active
+SP-B8N4D7WK   Nordwind Textile Co.        Pending
+SP-X2O9PL6T   Nordwind Textile Co.        Active
+SP-M6R1SE3J   Nordwind Textile Co.        Active
+SP-A9F5G2HU   Nordwind Textile Co.        Active
+SP-D4C8VN1Y   Nordwind Textile Co.        Active`;
+
+const DEMO_DOC={
+A:{exact:true,label:'native Word text · exact matching',text:`Supplier Qualification Declaration
+
+We (Nordwind Textile Co.) confirm that the business under the supplier IDs
+listed below has completed compliance filing, and we accept responsibility
+for the authenticity of all submitted materials.
+
+ID list:
+1. SP-7K2M9QX4
+2. SP-3HT0RV8N
+3. SP-QZ51LM2C
+4. SP-B8N4D7WK
+5. SP-X2O9PL6T
+6. SP-M6R1SF3J
+7. SP-A9F5G2HU
+
+Signed: R. Halvorsen        Date: 2026-08-14`},
+B:{exact:false,label:'scanned OCR · tolerant matching',text:`Supplier Qualification Declaration
+
+We (Nordwind Textile Co.) confirm that the business under the supplier IDs
+listed below has completed compliance filing, and we accept responsibility
+for the authenticity of all submitted materials,
+
+ID list:
+1. SP-7K2M9QX4
+2. SP-3HTORV8N
+3. SP-QZ5ILM2C
+4. SP-B8N4D7WK
+5. SP-X2O9PL6T
+6. SP-M6R1SF3J
+7. SP-A9F5G2HU
+
+Signed: R. Halvorsen        Date: 2026-08-14`}};
+
+const $=id=>document.getElementById(id);
+let curFile=null;
+function setFile(k){curFile=k;document.querySelectorAll('.file').forEach(f=>f.classList.toggle('on',f.dataset.f===k));
+  if(k){$('docText').value=DEMO_DOC[k].text;$('docSrc').innerHTML='<span class="src"><i></i>'+DEMO_DOC[k].label+'</span>';}
+  else{$('docSrc').textContent='';}}
+function updateCnt(){const ids=extractIds($('sysText').value),exp=expectedCount($('sysText').value);
+  const el=$('sysCnt');if(!ids.length){el.textContent='';return;}
+  el.textContent=`pulled ${ids.length} IDs`+(exp?` · page says ${exp}`:'');el.style.color=(exp&&exp!==ids.length)?'var(--warn)':'var(--ok)';}
+function hl(found,pos){if(!found)return '<span style="color:var(--ink2)">—</span>';const s='SP-'+found.slice(2);
+  if(pos==null)return s;const p=pos+1;return s.slice(0,p)+'<mark>'+s[p]+'</mark>'+s.slice(p+1);}
+function run(){
+  const sys=$('sysText').value,doc=$('docText').value;
+  const ids=extractIds(sys);
+  if(!ids.length||!doc.trim()){$('runHint').textContent='Fill in the system records and pick a file first';return;}
+  $('runHint').textContent='';
+  const exact=curFile?DEMO_DOC[curFile].exact:true;
+  const exp=expectedCount(sys),b=$('banner');
+  if(exp&&exp!==ids.length){b.className='banner warn';b.textContent=`Count mismatch: the page says ${exp} suppliers but only ${ids.length} IDs were pulled. Ignore the results below — go back and re-copy the whole block.`;}
+  else{b.className='banner';b.textContent='';}
+  const rows=matchAll(ids,doc,exact);LAST={rows,exact,exp,ids,file:curFile};
+  const c={ok:0,warn:0,bad:0};rows.forEach(r=>c[r.status]++);
+  $('sum').innerHTML=`<span class="chip ok">Passed ${c.ok}</span><span class="chip warn">Needs review ${c.warn}</span><span class="chip bad">Not found ${c.bad}</span><span class="chip" style="color:var(--ink2)">rule: ${exact?'exact match':'OCR-tolerant'}</span>`;
+  const T={ok:'Pass',warn:'Review',bad:'Missing'};
+  $('res').innerHTML=`<table><thead><tr><th>System ID</th><th>${exact?'As written in the file (Word text)':'As written in the file (OCR result)'}</th><th>Verdict</th><th>Note</th></tr></thead><tbody>`+
+    rows.map(r=>`<tr class="${r.status}"><td class="mono cp" data-cp="${r.id}" title="Click to copy">${r.id}</td><td class="mono">${hl(r.found,r.pos)}</td><td><span class="tag ${r.status}">${T[r.status]}</span></td><td style="color:var(--ink2)">${r.note}</td></tr>`).join('')+'</tbody></table>';
+  $('cpNote').style.display='block';$('cardReason').classList.add('show');$('reasonBox').value='';$('btnCopyReason').classList.remove('done');$('btnCopyReason').textContent='Copy all';
+}
+let LAST=null;
+async function copyText(t){try{await navigator.clipboard.writeText(t);return true;}catch(e){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();return ok;}}
+$('res').addEventListener('click',async e=>{const td=e.target.closest('td.cp');if(!td)return;
+  if(await copyText(td.dataset.cp)){td.classList.add('done');const old=td.textContent;td.textContent=old+'  copied';setTimeout(()=>{td.classList.remove('done');td.textContent=old;},900);}});
+function genReason(){if(!LAST){$('reasonBox').value='Run the check first.';return;}
+  const {rows,exact,exp,ids,file}=LAST;const ok=rows.filter(r=>r.status==='ok'),warn=rows.filter(r=>r.status==='warn'),bad=rows.filter(r=>r.status==='bad');
+  const fname=file?document.querySelector('.file[data-f="'+file+'"] b').textContent:'the submitted file';
+  const src=exact?'native Word text (no OCR, exact matching)':'local OCR of the scan (common confusions tolerated)';
+  const L=[];
+  L.push(`[Verdict] ${ids.length} IDs in the system records${exp?` (page says ${exp}, counts agree)`:``}, compared one by one against "${fname}"; source: ${src}.`);
+  L.push(`Passed ${ok.length}, needs review ${warn.length}, not found in the file ${bad.length}.`);
+  if(warn.length){L.push('');L.push('Needs review:');warn.forEach(r=>L.push(`- ${r.id}: written as SP-${r.found.slice(2)} in the file; ${r.note}.`));}
+  if(bad.length){L.push('');L.push('Not found:');bad.forEach(r=>L.push(`- ${r.id}: absent from the file; ask the supplier to add or explain it.`));}
+  L.push('');
+  L.push(bad.length||warn.length?`Recommendation: ${bad.length?'return for the missing IDs':''}${bad.length&&warn.length?'; ':''}${warn.length?'settle the review items against the original first':''}. The remaining ${ok.length} can be released.`:'Recommendation: all consistent — release.');
+  $('reasonBox').value=L.join('\n');$('btnCopyReason').classList.remove('done');$('btnCopyReason').textContent='Copy all';}
+$('btnReason').onclick=genReason;
+$('btnCopyReason').onclick=async()=>{const t=$('reasonBox').value;if(!t){genReason();}if(await copyText($('reasonBox').value)){const b=$('btnCopyReason');b.classList.add('done');b.textContent='Copied';setTimeout(()=>{b.classList.remove('done');b.textContent='Copy all';},1200);}};
+const EMPTY='<div class="empty">Nothing checked yet<small>Click "Load sample" (top right) for the auto demo: paste system records → pick the scan → check → generate the verdict</small></div>';
+function reset(){$('sysText').value='';$('docText').value='';setFile(null);updateCnt();$('banner').className='banner';$('sum').innerHTML='';$('res').innerHTML=EMPTY;$('runHint').textContent='';LAST=null;$('cpNote').style.display='none';$('cardReason').classList.remove('show');$('reasonBox').value='';document.querySelectorAll('.mod').forEach(m=>m.classList.remove('focus'));}
+$('sysText').addEventListener('input',updateCnt);
+document.querySelectorAll('.file').forEach(f=>f.addEventListener('click',()=>setFile(f.dataset.f)));
+$('btnRun').onclick=run;$('btnReset').onclick=()=>{if(!playing)reset();};
+
+/* ---- autoplay demo ---- */
+let playing=false;
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+function focus(id){document.querySelectorAll('.mod').forEach(m=>m.classList.toggle('focus',m.id===id));$(id).scrollIntoView({block:'nearest',behavior:'smooth'});}
+async function typeInto(el,text,total){el.value='';const lines=text.split('\n');const per=Math.max(40,total/lines.length);
+  for(const ln of lines){el.value+= (el.value?'\n':'')+ln;el.scrollTop=el.scrollHeight;el.dispatchEvent(new Event('input'));await wait(per);}}
+async function playDemo(){
+  if(playing)return;playing=true;const bd=$('btnDemo');bd.disabled=true;
+  document.body.classList.remove('explain');$('btnExplain').classList.remove('on');$('xTip').style.display='none';
+  reset();
+  $('runHint').textContent='Demo 1/3 · paste in the system-page records';focus('cardSys');
+  await wait(500);await typeInto($('sysText'),DEMO_SYS,1400);await wait(600);
+  $('runHint').textContent='Demo 2/3 · pick the supplier\'s scanned file (local OCR)';focus('cardDoc');
+  const fb=document.querySelector('.file[data-f="B"]');fb.classList.add('pulse');await wait(900);fb.classList.remove('pulse');setFile('B');
+  await wait(900);
+  $('runHint').textContent='Demo 3/3 · check';focus('runBox');$('btnRun').classList.add('pulse');await wait(1100);$('btnRun').classList.remove('pulse');
+  run();focus('cardRes');
+  await wait(1600);focus('cardReason');$('btnReason').classList.add('pulse');await wait(900);$('btnReason').classList.remove('pulse');genReason();
+  $('runHint').textContent='Demo finished. Click an ID in the table to copy it; edit the verdict, then copy. Try the Word card next and compare how the rule shifts with the source.';
+  await wait(1500);$('cardReason').classList.remove('focus');
+  bd.disabled=false;bd.textContent='Replay';playing=false;}
+$('btnDemo').onclick=playDemo;
+
+/* ---- explain mode ---- */
+const X={
+ sys:['① System records','The reviewer copies the whole block from the system page and pastes it — no picking IDs by hand. The tool pulls them out by shape and reconciles against the page\'s "Suppliers (N)": if the count disagrees, a yellow banner fires — fix the missed reads before reading results.'],
+ doc:['② Declaration file','The file the supplier submitted. Word files are read as native text, zero recognition error; scans / PDFs go through local OCR. The demo does not really upload — click a card to simulate the parsed text; the current source shows top right.'],
+ run:['Check','The judging ruler follows the source: a Word source passes only on exact match; an OCR source auto-tolerates common confusions like O/0 and I/1. Same list, different source — differently worded verdicts.'],
+ tech:['⑤ How it is built','The demo is pure front-end and does not really OCR; production runs on a local Bun server — Word via direct zip read, PDF via rasterising + Windows built-in OCR (Windows.Media.Ocr through PowerShell + WinRT), fully offline.'],
+ reason:['④ Review verdict','Sentences assembled from the results: count reconciliation, source rule, pass/review/missing detail, recommendation. The reviewer tweaks two lines and pastes it into the system notes instead of writing from scratch.'],
+ res:['③ Results','Three colours: green = passed; yellow = needs review (one character off, with the position and likely cause spelled out); red = not found in the file. The one-line summary on top can go straight into the audit trail.']};
+function setExplain(on){document.body.classList.toggle('explain',on);$('btnExplain').classList.toggle('on',on);if(!on)$('xTip').style.display='none';}
+$('btnExplain').onclick=()=>{if(playing)return;setExplain(!document.body.classList.contains('explain'));};
+document.querySelectorAll('.mod').forEach(m=>{
+  m.addEventListener('mouseenter',()=>{if(!document.body.classList.contains('explain'))return;
+    const [t,b]=X[m.dataset.x];$('xTitle').textContent=t;$('xBody').textContent=b;const tip=$('xTip');tip.style.display='block';
+    const r=m.getBoundingClientRect(),tw=tip.offsetWidth,th=tip.offsetHeight;let x=r.right+14,y=r.top;
+    if(x+tw>innerWidth-12){x=Math.max(12,Math.min(innerWidth-tw-12,r.left));y=r.bottom+12;if(y+th>innerHeight-12)y=Math.max(12,r.top-th-12);}
+    if(y+th>innerHeight-12)y=Math.max(12,innerHeight-th-12);
+    tip.style.left=x+'px';tip.style.top=y+'px';});
+  m.addEventListener('mouseleave',()=>{$('xTip').style.display='none';});});
+addEventListener('keydown',e=>{if(e.key==='Escape')setExplain(false);});
+
+/* ---- embed support: report height to parent ---- */
+function postH(){if(window.parent===window)return;try{window.parent.postMessage({demoHeight:Math.max(document.body.scrollHeight,document.body.offsetHeight)},'*');}catch(e){}}
+if(window.parent!==window){document.body.classList.add('embedded');
+  addEventListener('load',postH);addEventListener('resize',postH);
+  ['btnDemo','btnReset','btnRun','btnReason','btnExplain'].forEach(id=>$(id).addEventListener('click',()=>{[120,900,4200,7000].forEach(t=>setTimeout(postH,t));}));
+  document.querySelectorAll('.file').forEach(f=>f.addEventListener('click',()=>setTimeout(postH,150)));
+  if(window.ResizeObserver)new ResizeObserver(postH).observe(document.body);
+  setTimeout(postH,300);}
+</script>
+</body>
+</html>
