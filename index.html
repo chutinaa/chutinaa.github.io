@@ -35,12 +35,10 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);
 .dial .foot .contact a{color:var(--ink2);text-decoration:none;border-bottom:1px solid var(--rule)}
 .dial .foot .contact a:hover{color:var(--accent);border-color:var(--accent)}
 .dial .foot{position:absolute;left:40px;right:32px;bottom:18px;z-index:2}
-.dial .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-.dial .tags span{font-size:.66rem;letter-spacing:.08em;color:var(--ink2);border:1px solid var(--rule);padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.35)}
 .dial .meta{font-size:.68rem;color:var(--ink2);letter-spacing:.04em;display:flex;gap:14px;flex-wrap:wrap}
 
 .stage{position:relative;width:100%;height:100%;--navy:50%}
-@media(max-height:820px) and (min-width:901px){.stage{--navy:46%}.dial .tags{display:none}}
+@media(max-height:820px) and (min-width:901px){.stage{--navy:46%}}
 
 /* orb: mesh-gradient aurora — overlapping colour mists, no edge, grain on top */
 .orb{position:absolute;left:-230px;top:var(--navy);width:580px;height:580px;margin-top:-290px;
@@ -250,8 +248,7 @@ td:first-child{font-weight:600;white-space:nowrap}
   .dial .foot{position:static;margin-top:18px}
   .dial .stage{display:none}
   .dial .orb{display:none}
-  .dial .tags{display:none}
-  .dial .foot{display:none}
+    .dial .foot{display:none}
   .dial{padding:42px 22px 24px}
   .dial .brand{margin-bottom:0}
 }
@@ -323,7 +320,7 @@ td:first-child{font-weight:600;white-space:nowrap}
 <div class="shell">
   <aside class="dial">
     <div class="brand">
-      <small>AI Enablement Showcase</small>
+      <small>PORTFOLIO</small>
       <b>Chuting (Telie) Zhang</b>
       <div class="role">AI Enablement · Workflow Automation</div>
       <div class="langsw"><a data-lang="en">EN</a><a data-lang="zh">中文</a><a data-lang="fr">FR</a></div>
@@ -333,7 +330,6 @@ td:first-child{font-weight:600;white-space:nowrap}
       <div class="orb" id="orb"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div><div class="blob b5"></div><div class="grain"></div></div>
     </div>
     <div class="foot">
-      <div class="tags"><span>AI Enablement</span><span>Low-code</span><span>流程自动化</span><span>本地化方案</span></div>
       <div class="contact iconrow sm">
         <a href="mailto:telie_zhang@163.com" title="telie_zhang@163.com" aria-label="Email"><svg><use href="#i-mail"/></svg></a>
         <a href="mailto:chuting.zhang@edu.escp.eu" title="Recruitment · chuting.zhang@edu.escp.eu" aria-label="Recruitment email"><svg><use href="#i-brief"/></svg></a>
@@ -530,7 +526,7 @@ const SECTIONS_ZH = [
       "消除人眼漏检风险，判定结果可复现、可追溯。",
       "case响应时效大幅提升，支撑月均1,500\u20132,000个case的审核流量。"]},
     {label:"Open Source",zh:"开源",html:`
-      <p style="margin:0;font-size:.82rem;color:var(--ink2)">这套本地OCR方案已抽出通用版并<a href="https://github.com/chutinaa/local-ocr-kit" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--rule)">开源（local-ocr-kit →）</a>，含引擎、可复用配方与网页版。</p>`}
+      <p style="margin:0;font-size:.82rem;color:var(--ink2)">这套本地OCR方案已抽出通用版并开源（<a href="https://github.com/chutinaa/local-ocr-kit" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--rule)">local-ocr-kit</a>），含引擎、可复用配方与网页版。</p>`}
   ]
 },
 {
@@ -544,7 +540,9 @@ const SECTIONS_ZH = [
       <li>统一Hub入口+统一视觉风格，按产品标准交付——是体系，不是零散脚本。</li>
       </ul>
       <div class="verdict">判断演进：从「逐个做工具」到「按产品标准建平台」——统一入口、统一风格、全套离线单文件，Hub集中呈现整套工具，不是零散脚本。</div>
-      <figure class="chart shotfig"><img src="assets/hub_home.png" alt="Tools Hub首页界面" loading="lazy"><figcaption>Hub首页 · 真实界面（系统名已作通用化处理）</figcaption></figure>`}
+      <figure class="chart shotfig"><img src="assets/hub_home.png" alt="Tools Hub首页界面" loading="lazy"><figcaption>Hub首页 · 真实界面（系统名已作通用化处理）</figcaption></figure>`},
+    {label:"Open Source",zh:"开源",html:`
+      <p style="margin:0;font-size:.82rem;color:var(--ink2)">这套离线化方法已抽出通用版并开源（<a href="https://github.com/chutinaa/offline-html-kit" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--rule)">offline-html-kit</a>），含可复用配方与正反示例。</p>`}
   ]
 },
 {

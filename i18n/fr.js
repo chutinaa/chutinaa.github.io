@@ -18,7 +18,7 @@ ui: {
 },
 sections: [
 {
-  no:"00", title:"Vue d’ensemble", tag:"Positionnement",
+  no:"00", title:"Vue d’ensemble", tag:"Intro",
   star:[{label:"",zh:"", html:`
     <p style="font-size:1.05em;max-width:44em;line-height:1.8">
     Utilisatrice avancée de l’IA en première ligne des opérations, j’explore ce que les workflows automatisés par l’IA peuvent accomplir. Chacun de ces processus métier, je l’ai d’abord réalisé de bout en bout — puis automatisé moi-même : <b>6 outils de niveau production</b>, livrés en solo, qui font passer le travail Excel central de l’équipe de plusieurs heures à quelques minutes.<br><br>
@@ -26,7 +26,7 @@ sections: [
     </p>
     <div class="metrics">
       <div><b>6</b><small>outils de niveau production</small></div>
-      <div><b>2 380</b><small>assertions de test</small></div>
+      <div><b>2380</b><small>assertions de test</small></div>
       <div><b>120 k+</b><small>lignes de données</small></div>
       <div><b>0</b><small>token &middot; donnée sortante</small></div>
     </div>
@@ -49,10 +49,10 @@ sections: [
     {label:"Méthode",zh:"", html:`
       <figure class="chart">
       <svg viewBox="0 0 680 340">
-<g class="lbl"><text x="0" y="60">Processus</text></g>
-<g><text x="0" y="118" class="lbl">Moi</text><text x="2" y="134" class="sm mut">jugement</text></g>
-<g><text x="0" y="204" class="lbl">IA</text><text x="0" y="220" class="sm mut">exécution</text></g>
-<g><text x="0" y="272" class="lbl">Garde-fou</text></g>
+<g class="lbl"><text x="45" y="60" text-anchor="middle">Processus</text></g>
+<g><text x="45" y="118" class="lbl" text-anchor="middle">Moi</text><text x="45" y="134" class="sm mut" text-anchor="middle">jugement</text></g>
+<g><text x="45" y="204" class="lbl" text-anchor="middle">IA</text><text x="45" y="220" class="sm mut" text-anchor="middle">exécution</text></g>
+<g><text x="45" y="272" class="lbl" text-anchor="middle">Garde-fou</text></g>
 
 <g fill="var(--mist1)" opacity=".55"><rect x="96" y="40" width="132" height="32" rx="3"/><rect x="238" y="40" width="132" height="32" rx="3"/><rect x="380" y="40" width="132" height="32" rx="3"/><rect x="522" y="40" width="132" height="32" rx="3"/></g>
 <g text-anchor="middle" class="sm"><text x="162" y="61">① Préparation</text><text x="304" y="61">② Synthèses</text><text x="446" y="61">③ Graphiques</text><text x="588" y="61">④ Envoi e-mail</text></g>
@@ -70,7 +70,7 @@ sections: [
 <g text-anchor="middle" class="sm mut"><text x="162" y="202">lire · nettoyer · valider</text><text x="304" y="202">calculs · tableaux</text><text x="446" y="202">tracé des graphiques</text><text x="588" y="202">générer le .eml</text></g>
 
 <rect x="96" y="240" width="558" height="40" rx="3" fill="var(--mist3)" opacity=".55"/>
-<text x="375" y="258" text-anchor="middle">Tests de recette conçus par moi : 34 suites · 2 380 assertions</text>
+<text x="375" y="258" text-anchor="middle">Tests de recette conçus par moi : 34 suites · 2380 assertions</text>
 <text x="375" y="273" text-anchor="middle" class="sm mut">modifiez une règle ou cassez un chiffre : les tests passent au rouge aussitôt</text>
 <text x="0" y="316" class="sm mut">Résultat : production passée de 1 h+ à quelques minutes, sans dégradation quand les données grossissent.</text>
 </svg>
@@ -122,7 +122,7 @@ sections: [
       <ul><li>Livré en un seul fichier (~1,2 Mo) : zéro installation, zéro dépendance, entièrement hors ligne.</li></ul>`},
     {label:"Résultats",zh:"", items:[
       "Temps de production : 1 h+ → quelques minutes, indépendant de la croissance des données.",
-      "34 suites de tests et 2 380 assertions, toutes au vert : les règles de calcul restent sous garde.",
+      "34 suites de tests et 2380 assertions, toutes au vert : les règles de calcul restent sous garde.",
       "Aucun incident de mélange de définitions ni de décalage depuis la mise en service."]}
   ]
 },
@@ -166,7 +166,7 @@ sections: [
       "Fini le risque d’oubli visuel ; les verdicts sont reproductibles et traçables.",
       "Traitement des dossiers nettement accéléré, à l’appui de 1 500 à 2 000 dossiers de contrôle par mois."]},
     {label:"Open source",zh:"", html:`
-      <p style="margin:0;font-size:.82rem;color:var(--ink2)">L’approche OCR locale a été extraite et <a href="https://github.com/chutinaa/local-ocr-kit" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--rule)">publiée en open source (local-ocr-kit →)</a> — moteur, recettes réutilisables et version web.</p>`}
+      <p style="margin:0;font-size:.82rem;color:var(--ink2)">L’approche OCR locale a été extraite et publiée en open source (<a href="https://github.com/chutinaa/local-ocr-kit" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--rule)">local-ocr-kit</a>) — moteur, recettes réutilisables et version web.</p>`}
   ]
 },
 {
@@ -180,7 +180,9 @@ sections: [
       <li>Une entrée Hub unique, un langage visuel commun, livré au standard produit : un système, pas un tas de scripts.</li>
       </ul>
       <div class="verdict">Évolution du jugement : de « construire les outils un par un » à « construire une plateforme au standard produit » — entrée unifiée, style unifié, fichiers uniques hors ligne, présentés ensemble dans le Hub.</div>
-      <figure class="chart shotfig"><img src="assets/hub_home.png" alt="Accueil du Hub" loading="lazy"><figcaption>Accueil du Hub · interface réelle (noms de systèmes rendus génériques) ; l’interface du Hub est en chinois — la démo ci-dessus est la visite guidée en anglais</figcaption></figure>`}
+      <figure class="chart shotfig"><img src="assets/hub_home.png" alt="Accueil du Hub" loading="lazy"><figcaption>Accueil du Hub · interface réelle (noms de systèmes rendus génériques) ; l’interface du Hub est en chinois — la démo ci-dessus est la visite guidée en anglais</figcaption></figure>`},
+    {label:"Open source",zh:"", html:`
+      <p style="margin:0;font-size:.82rem;color:var(--ink2)">L’approche de livraison hors ligne a été extraite et publiée en open source (<a href="https://github.com/chutinaa/offline-html-kit" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--rule)">offline-html-kit</a>) — recettes réutilisables, exemple et contre-exemple.</p>`}
   ]
 },
 {

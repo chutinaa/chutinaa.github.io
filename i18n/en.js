@@ -17,7 +17,7 @@ ui: {
 },
 sections: [
 {
-  no:"00", title:"Overview", tag:"Positioning",
+  no:"00", title:"Overview", tag:"Intro",
   star:[{label:"",zh:"", html:`
     <p style="font-size:1.05em;max-width:44em;line-height:1.8">
     A power user of AI on the operations front line, exploring what AI-automated workflows can do. I&rsquo;ve worked through every one of these business processes end to end &mdash; then automated them myself: <b>6 production-grade tools</b>, shipped solo, cutting the team&rsquo;s core Excel work from hours to minutes.<br><br>
@@ -48,10 +48,10 @@ sections: [
     {label:"Methodology",zh:"", html:`
       <figure class="chart">
       <svg viewBox="0 0 680 340">
-<g class="lbl"><text x="0" y="60">Process</text></g>
-<g><text x="0" y="118" class="lbl">Me</text><text x="2" y="134" class="sm mut">judgment</text></g>
-<g><text x="0" y="204" class="lbl">AI</text><text x="0" y="220" class="sm mut">implementation</text></g>
-<g><text x="0" y="272" class="lbl">Safeguard</text></g>
+<g class="lbl"><text x="45" y="60" text-anchor="middle">Process</text></g>
+<g><text x="45" y="118" class="lbl" text-anchor="middle">Me</text><text x="45" y="134" class="sm mut" text-anchor="middle">judgment</text></g>
+<g><text x="45" y="204" class="lbl" text-anchor="middle">AI</text><text x="45" y="220" class="sm mut" text-anchor="middle">implementation</text></g>
+<g><text x="45" y="272" class="lbl" text-anchor="middle">Safeguard</text></g>
 
 <g fill="var(--mist1)" opacity=".55"><rect x="96" y="40" width="132" height="32" rx="3"/><rect x="238" y="40" width="132" height="32" rx="3"/><rect x="380" y="40" width="132" height="32" rx="3"/><rect x="522" y="40" width="132" height="32" rx="3"/></g>
 <g text-anchor="middle" class="sm"><text x="162" y="61">\u2460 Pre-process</text><text x="304" y="61">\u2461 Summary tables</text><text x="446" y="61">\u2462 Trend charts</text><text x="588" y="61">\u2463 Email out</text></g>
@@ -165,7 +165,7 @@ sections: [
       "No more missed-by-eye risk; verdicts are reproducible and traceable.",
       "Much faster case turnaround, supporting 1,500\u20132,000 review cases a month."]},
     {label:"Open Source",zh:"", html:`
-      <p style="margin:0;font-size:.82rem;color:var(--ink2)">The local OCR approach is extracted and <a href="https://github.com/chutinaa/local-ocr-kit" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--rule)">open-sourced (local-ocr-kit \u2192)</a> \u2014 engine, reusable recipes and a web version.</p>`}
+      <p style="margin:0;font-size:.82rem;color:var(--ink2)">The local OCR approach is extracted and open-sourced (<a href="https://github.com/chutinaa/local-ocr-kit" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--rule)">local-ocr-kit</a>) \u2014 engine, reusable recipes and a web version.</p>`}
   ]
 },
 {
@@ -179,7 +179,9 @@ sections: [
       <li>One Hub entry, one visual language, shipped to product standard \u2014 a system, not a pile of scripts.</li>
       </ul>
       <div class="verdict">How the judgment evolved: from &ldquo;build tools one by one&rdquo; to &ldquo;build a platform to product standard&rdquo; \u2014 unified entry, unified style, all offline single-file, presented together in the Hub.</div>
-      <figure class="chart shotfig"><img src="assets/hub_home.png" alt="Tools Hub home" loading="lazy"><figcaption>Hub home \u00b7 real interface (system names genericised); Hub UI is in Chinese \u2014 the demo above is the English walkthrough</figcaption></figure>`}
+      <figure class="chart shotfig"><img src="assets/hub_home.png" alt="Tools Hub home" loading="lazy"><figcaption>Hub home \u00b7 real interface (system names genericised); Hub UI is in Chinese \u2014 the demo above is the English walkthrough</figcaption></figure>`},
+    {label:"Open Source",zh:"", html:`
+      <p style="margin:0;font-size:.82rem;color:var(--ink2)">The offline-delivery approach is extracted and open-sourced (<a href="https://github.com/chutinaa/offline-html-kit" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--rule)">offline-html-kit</a>) \u2014 reusable recipes with a working example and an anti-example.</p>`}
   ]
 },
 {
