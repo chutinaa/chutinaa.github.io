@@ -278,7 +278,7 @@ function mailHtml(imgSrc){const month=$('month').value;const cur=T1[T1.length-1]
 ${imgSrc?`<img src="${imgSrc}" width="720" style="display:block;width:720px;max-width:100%;height:auto;border:1px solid #e6e3dc;border-radius:6px" alt="近 6 个月趋势图">`:'<p style="font-size:12px;color:#a7423b">（图表生成中）</p>'}
 <p style="margin:12px 0 0;font-size:12px;color:#6b6862">图表以 PNG 内嵌（邮件客户端不支持 SVG），与上表同一份数据渲染。Others 为非销售团队，只列计数。交叉核对：${audit(T1,T2,month).length?'<span style="color:#a7423b">未通过，本邮件不应发出</span>':'通过'}。</p></div>`;}
 async function renderMail(){const month=$('month').value;CHART_PNG=await chartToPng();
-  $('mail').innerHTML=`<div class="mail"><div class="hd"><b>主题：</b>${month} 月度服务申请报告<br><b>收件人：</b>team-leads@example.com &nbsp; <b>格式：</b>HTML 正文，表格 + 趋势图（PNG 内嵌）随邮件走，不依赖截图</div><div class="bd">${mailHtml(CHART_PNG)}</div></div>`;}
+  $('mail').innerHTML=`<div class="mail"><div class="hd"><b>主题：</b>${month} 月度服务申请报告<br><b>收件人：</b>team-leads@example.com<br><b>格式：</b>HTML 正文，表格 + 趋势图（PNG 内嵌）随邮件走，不依赖截图</div><div class="bd">${mailHtml(CHART_PNG)}</div></div>`;}
 const wrap76=b=>b.replace(/(.{76})/g,'$1\r\n');
 async function downloadEml(){const month=$('month').value;if(!CHART_PNG)CHART_PNG=await chartToPng();
   const html=`<!doctype html><html><body>${mailHtml(CHART_PNG?'cid:trend-chart':'')}</body></html>`;

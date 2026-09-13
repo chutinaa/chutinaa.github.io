@@ -278,7 +278,7 @@ function mailHtml(imgSrc){const month=$('month').value;const cur=T1[T1.length-1]
 ${imgSrc?`<img src="${imgSrc}" width="720" style="display:block;width:720px;max-width:100%;height:auto;border:1px solid #e6e3dc;border-radius:6px" alt="6-month trend chart">`:'<p style="font-size:12px;color:#a7423b">(chart rendering)</p>'}
 <p style="margin:12px 0 0;font-size:12px;color:#6b6862">Chart embedded as PNG (mail clients do not render SVG), drawn from the same data as the table above. Others = non-sales teams, counts only. Cross-check: ${audit(T1,T2,month).length?'<span style="color:#a7423b">failed — this email must not be sent</span>':'passed'}.</p></div>`;}
 async function renderMail(){const month=$('month').value;CHART_PNG=await chartToPng();
-  $('mail').innerHTML=`<div class="mail"><div class="hd"><b>Subject:</b> ${month} monthly service request report<br><b>To:</b> team-leads@example.com &nbsp; <b>Format:</b> HTML body; tables and trend chart (inline PNG) travel with the email — no screenshots</div><div class="bd">${mailHtml(CHART_PNG)}</div></div>`;}
+  $('mail').innerHTML=`<div class="mail"><div class="hd"><b>Subject:</b> ${month} monthly service request report<br><b>To:</b> team-leads@example.com<br><b>Format:</b> HTML body; tables and trend chart (inline PNG) travel with the email — no screenshots</div><div class="bd">${mailHtml(CHART_PNG)}</div></div>`;}
 const wrap76=b=>b.replace(/(.{76})/g,'$1\r\n');
 async function downloadEml(){const month=$('month').value;if(!CHART_PNG)CHART_PNG=await chartToPng();
   const html=`<!doctype html><html><body>${mailHtml(CHART_PNG?'cid:trend-chart':'')}</body></html>`;
